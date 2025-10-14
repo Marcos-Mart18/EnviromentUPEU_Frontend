@@ -1,16 +1,16 @@
-<div class="flex min-h-screen">
-  <div class="w-full md:w-[30%] flex items-center justify-start bg-white pl-12">
-    <div class="w-full max-w-xs">
-      <router-outlet></router-outlet>
+  <div class="flex min-h-screen">
+    <div class="w-full md:w-[30%] flex items-center justify-start bg-white pl-12">
+      <div class="w-full max-w-xs">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <div class="hidden md:block md:w-[70%] relative">
+      <img
+        src="assets/images/upeuLima.jpg"
+        class="object-cover w-full h-full brightness-90"
+        alt="Universidad Peruana Unión"
+      />
+      <div class="absolute inset-0 bg-black opacity-10"></div>
     </div>
   </div>
-
-  <div class="hidden md:block md:w-[70%] relative">
-    <img
-      src="assets/images/upeuLima.jpg"
-      class="object-cover w-full h-full brightness-90"
-      alt="Universidad Peruana Unión"
-    />
-    <div class="absolute inset-0 bg-black opacity-10"></div>
-  </div>
-</div>
