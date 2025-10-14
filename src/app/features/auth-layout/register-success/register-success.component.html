@@ -1,0 +1,82 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+  <!-- Elementos de confeti animados - ahora cubren toda la pantalla -->
+  <div class="fixed inset-0 pointer-events-none z-10">
+    <!-- Confeti cuadrado -->
+    <div class="confetti confetti-square confetti-1"></div>
+    <div class="confetti confetti-square confetti-2"></div>
+    <div class="confetti confetti-square confetti-3"></div>
+    <div class="confetti confetti-square confetti-4"></div>
+    <div class="confetti confetti-square confetti-5"></div>
+    <div class="confetti confetti-square confetti-6"></div>
+    <div class="confetti confetti-square confetti-7"></div>
+    <div class="confetti confetti-square confetti-8"></div>
+    <div class="confetti confetti-square confetti-9"></div>
+    <div class="confetti confetti-square confetti-10"></div>
+    
+    <!-- Confeti circular -->
+    <div class="confetti confetti-circle confetti-11"></div>
+    <div class="confetti confetti-circle confetti-12"></div>
+    <div class="confetti confetti-circle confetti-13"></div>
+    <div class="confetti confetti-circle confetti-14"></div>
+    <div class="confetti confetti-circle confetti-15"></div>
+    <div class="confetti confetti-circle confetti-16"></div>
+    
+    <!-- Confeti triangular -->
+    <div class="confetti confetti-triangle confetti-17"></div>
+    <div class="confetti confetti-triangle confetti-18"></div>
+    <div class="confetti confetti-triangle confetti-19"></div>
+    <div class="confetti confetti-triangle confetti-20"></div>
+    <div class="confetti confetti-triangle confetti-21"></div>
+    <div class="confetti confetti-triangle confetti-22"></div>
+    
+    <!-- Confeti estrella -->
+    <div class="confetti confetti-star confetti-23"></div>
+    <div class="confetti confetti-star confetti-24"></div>
+    <div class="confetti confetti-star confetti-25"></div>
+    <div class="confetti confetti-star confetti-26"></div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center relative z-20">
+
+    <!-- Icono de éxito con animación -->
+    <div class="relative mb-6">
+      <div class="w-24 h-24 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-4 animate-bounce">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center animate-pulse" style="background-color: #BFC621;">
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.493 18.75c-.425 0-.82-.236-.975-.632A7.48 7.48 0 016 15.375c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75 2.25 2.25 0 012.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558-.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23h-.777zM2.331 10.977a11.969 11.969 0 00-.831 4.398 12 12 0 00.52 3.507c.26.85 1.084 1.368 1.973 1.368H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 01-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje principal -->
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 animate-fade-in">
+      ¡Tu cuenta ha sido creada!
+    </h1>
+
+    <!-- Botón de redirección -->
+    <div class="animate-slide-up">
+      <button 
+        class="w-full text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50"
+        style="background-color: #BFC621;"
+        onmouseover="this.style.backgroundColor='#9ba713'"
+        onmouseout="this.style.backgroundColor='#BFC621'"
+        [disabled]="isRedirecting"
+      >
+        <span *ngIf="!isRedirecting">Redirigiendo...</span>
+        <span *ngIf="isRedirecting" class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Redirigiendo...
+        </span>
+      </button>
+    </div>
+
+    <!-- Mensaje de progreso -->
+    <p class="text-sm text-gray-500 mt-4 animate-fade-in-delay">
+      Serás redirigido automáticamente en {{ countdown }} segundos
+    </p>
+  </div>
+</div>

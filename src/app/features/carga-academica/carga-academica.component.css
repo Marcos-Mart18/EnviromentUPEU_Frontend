@@ -1,0 +1,88 @@
+/* Animaciones para el modal de subida */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animación de rebote suave */
+@keyframes gentle-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce {
+  animation: gentle-bounce 2s infinite;
+}
+
+/* Efecto de hover en las filas de la tabla */
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+/* Transiciones suaves para los botones */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Estilos para los selects */
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(191, 198, 33, 0.1);
+}
+
+/* Animación de la barra de progreso */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Efectos de hover para los botones */
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para las filas destacadas */
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+
+.bg-orange-100 {
+  background-color: #fed7aa;
+}
+
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+
+/* Animación de entrada para el modal */
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-enter {
+  animation: modal-enter 0.3s ease-out;
+}
