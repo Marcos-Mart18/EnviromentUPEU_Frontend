@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../core/services/auth.service';
+import { User } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,8 +12,10 @@ import { filter } from 'rxjs/operators';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
+  private authService = inject(AuthService);
   horariosExpanded = false;
   currentRoute = '';
+  currentUser: User | null = null;
 
   constructor(private router: Router) {
     this.router.events
@@ -19,6 +23,11 @@ export class SidebarComponent {
       .subscribe((event: NavigationEnd) => {
         this.currentRoute = event.url;
       });
+    
+    // Suscribirse al usuario actual
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   toggleHorarios() {
@@ -27,5 +36,32 @@ export class SidebarComponent {
 
   isActive(route: string): boolean {
     return this.currentRoute === route;
+  }
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Logout exitoso');
+      },
+      error: (error) => {
+        console.error('Error en logout', error);
+      }
+    });
+  }
+
+  getUserRole(): string {
+    return this.currentUser?.roles?.[0]?.name || 'Usuario';
+  }
+
+  hasRole(roleName: string): boolean {
+    return this.authService.hasRole(roleName);
+  }
+
+  isAsacad(): boolean {
+    return this.hasRole('ASACAD');
+  }
+
+  isCoorooms(): boolean {
+    return this.hasRole('COOROOMS');
   }
 }

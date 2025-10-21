@@ -17,6 +17,7 @@ import { ResourceScreenComponent } from './features/resource-screen/resource-scr
 import { ResourceComponent } from './features/resource-screen/resource/resource.component';
 import { ResourceStateComponent } from './features/resource-screen/resource-state/resource-state.component';
 import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -35,6 +36,7 @@ export const routes: Routes = [
     {
         path: 'main',
         component: MainComponent,
+        canActivate: [authGuard],
         children: [
         { path: '', redirectTo: 'menu', pathMatch: 'full' },
         { path: 'menu', component: MenuComponent },
@@ -43,21 +45,29 @@ export const routes: Routes = [
         { path: 'proximamente', component: ProximamenteComponent },
         { path: 'notificaciones', component: NotificacionesComponent },
         { path: 'configuracion', component: ConfiguracionComponent },
+        
+        // Env-creation con rutas hijas
+        {
+            path: 'env-creation',
+            component: EnvScreenComponent,
+            children: [
+                { path: 'environment', component: AmbienteComponent },
+                { path: 'type-environment', component: TypeEnvComponent },
+            ]
+        },
+        
+        // Res-creation con rutas hijas
+        {
+            path: 'res-creation',
+            component: ResourceScreenComponent,
+            children: [
+                { path: 'resources', component: ResourceComponent },
+                { path: 'states', component: ResourceStateComponent },
+                { path: 'types', component: ResourceTypeComponent },
+            ]
+        },
         ],
     },
-
-    { path: 'env-creation', component: EnvScreenComponent },
-
-    { path: 'env-creation/environment', component: AmbienteComponent },
-    { path: 'env-creation/type-environment', component: TypeEnvComponent },
-
-        // Pantalla de selección (cards)
-    { path: 'res-creation', component: ResourceScreenComponent },
-
-    // Vistas
-    { path: 'res-creation/resources', component: ResourceComponent },
-    { path: 'res-creation/states', component: ResourceStateComponent },
-    { path: 'res-creation/types', component: ResourceTypeComponent },
 
 
     { path: '**', redirectTo: '' },

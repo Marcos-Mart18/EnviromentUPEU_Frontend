@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 type ID = number;
 
@@ -19,6 +20,8 @@ interface TipoAmbiente {
   styleUrl: './type-env.component.css'
 })
 export class TypeEnvComponent {
+constructor(private router: Router) {}
+
 // --- Form (crear / editar) ---
 nuevoNombre = '';
 nuevaDescripcion = '';
@@ -135,4 +138,8 @@ private resetForm(): void {
 }
 
 trackById = (_: number, item: TipoAmbiente) => item.id;
+
+volver(): void {
+  this.router.navigate(['/main/env-creation']);
+}
 }

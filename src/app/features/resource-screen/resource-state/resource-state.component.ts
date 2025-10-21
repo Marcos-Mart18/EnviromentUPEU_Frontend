@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 interface Estado { id: number; nombre: string; activo: boolean; }
 
@@ -13,6 +14,8 @@ interface Estado { id: number; nombre: string; activo: boolean; }
 })
 export class ResourceStateComponent {
   readonly brand = '#BFC621';
+
+  constructor(private router: Router) {}
   estados: Estado[] = [
     { id: 1, nombre: 'Disponible', activo: true },
     { id: 2, nombre: 'En uso', activo: true },
@@ -29,5 +32,9 @@ export class ResourceStateComponent {
   eliminar(e: Estado) {
     if (!confirm(`¿Eliminar estado "${e.nombre}"?`)) return;
     this.estados = this.estados.filter(x => x.id !== e.id);
+  }
+
+  volver(): void {
+    this.router.navigate(['/main/res-creation']);
   }
 }

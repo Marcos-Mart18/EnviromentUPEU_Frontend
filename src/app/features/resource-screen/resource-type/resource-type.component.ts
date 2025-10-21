@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 interface Categoria { id: number; nombre: string; activo: boolean; }
 interface Tipo { id: number; nombre: string; activo: boolean; categoriaId: number | null; }
@@ -15,6 +16,8 @@ interface Tipo { id: number; nombre: string; activo: boolean; categoriaId: numbe
 export class ResourceTypeComponent {
   readonly brand = '#BFC621';
   reassignTarget: Record<number, number | null> = {};
+
+  constructor(private router: Router) {}
 
   categorias: Categoria[] = [
     { id: 1, nombre: 'Audiovisual', activo: true },
@@ -88,6 +91,10 @@ reasignarYEliminar(cat: Categoria, nuevoCatId: number | null) {
 // Categorías destino (excluye la misma)
 categoriasDestino(catId: number): Categoria[] {
   return this.categorias.filter(c => c.id !== catId);
+}
+
+volver(): void {
+  this.router.navigate(['/main/res-creation']);
 }
 
 }

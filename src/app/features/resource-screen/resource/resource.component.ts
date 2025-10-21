@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 type ID = number;
 
@@ -25,6 +26,8 @@ interface Recurso {
 })
 export class ResourceComponent {
   readonly brand = '#BFC621';
+
+  constructor(private router: Router) {}
 
   // Mock de catálogos (simula que ya fueron creados en sus pantallas)
   ambientes: Ambiente[] = [
@@ -97,6 +100,10 @@ export class ResourceComponent {
   eliminar(r: Recurso) {
     if (!confirm(`¿Eliminar "${r.nombre}"?`)) return;
     this.recursos = this.recursos.filter(x => x.id !== r.id);
+  }
+
+  volver(): void {
+    this.router.navigate(['/main/res-creation']);
   }
 
   // Métricas
