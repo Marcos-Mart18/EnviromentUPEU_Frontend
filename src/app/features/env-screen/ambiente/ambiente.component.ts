@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 type ID = number;
 
@@ -29,6 +30,8 @@ interface TipoAmbiente {
 export class AmbienteComponent {
   // --- Colores base (coincide con el mock) ---
   readonly verde = '#BFC621';
+
+  constructor(private router: Router) {}
 
   // --- Tipos disponibles para el select ---
   tipos: TipoAmbiente[] = [
@@ -169,4 +172,8 @@ export class AmbienteComponent {
   }
 
   trackById = (_: number, it: Ambiente) => it.id;
+
+  volver(): void {
+    this.router.navigate(['/main/env-creation']);
+  }
 }

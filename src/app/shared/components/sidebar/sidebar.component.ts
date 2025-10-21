@@ -52,4 +52,16 @@ export class SidebarComponent {
   getUserRole(): string {
     return this.currentUser?.roles?.[0]?.name || 'Usuario';
   }
+
+  hasRole(roleName: string): boolean {
+    return this.authService.hasRole(roleName);
+  }
+
+  isAsacad(): boolean {
+    return this.hasRole('ASACAD');
+  }
+
+  isCoorooms(): boolean {
+    return this.hasRole('COOROOMS');
+  }
 }

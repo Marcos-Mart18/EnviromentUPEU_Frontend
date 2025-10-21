@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-env-screen',
@@ -9,9 +10,10 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './env-screen.component.html',
   styleUrls: ['./env-screen.component.css'],
 })
-export class EnvScreenComponent {
+export class EnvScreenComponent implements OnInit {
   // Color de marca
   readonly brand = '#BFC621';
+  isChildRouteActive = false;
 
   // Config de las tarjetas
   cards = [
@@ -20,7 +22,7 @@ export class EnvScreenComponent {
       title: 'Crear Ambiente',
       desc:
         'Registra un nuevo ambiente con su tipo asociado y gestiona sus recursos y disponibilidad.',
-      route: 'env-creation/environment', // ajusta a tu ruta real
+      route: 'environment', // ruta relativa
       cta: 'Ir a Ambientes',
       iconPath:
         'M4 12l8-8 8 8M6 10v8a2 2 0 002 2h8a2 2 0 002-2v-8',
@@ -30,17 +32,35 @@ export class EnvScreenComponent {
       title: 'Crear Tipo de Ambiente',
       desc:
         'Define categorías como Sala de Reuniones, Laboratorio o Almacenamiento para usarlas luego.',
-      route: 'env-creation/type-environment', // ajusta a tu ruta real
+      route: 'type-environment', // ruta relativa
       cta: 'Ir a Tipos',
       iconPath:
         'M4 6h16M4 12h16M4 18h10', // icono "lista"
     },
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    // Detectar si hay rutas hijas activas
+    this.checkChildRoute();
+    
+    // Escuchar cambios de navegación
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.checkChildRoute();
+      });
+  }
+
+  checkChildRoute() {
+    // Verificar si hay hijos activos en la ruta
+    this.isChildRouteActive = this.route.children.length > 0;
+  }
 
   go(route: string) {
     if (!route) return;
-    this.router.navigateByUrl(route);
+    // Navegación relativa desde la ruta actual
+    this.router.navigate([route], { relativeTo: this.route });
   }
 }

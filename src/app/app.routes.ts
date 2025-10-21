@@ -45,21 +45,29 @@ export const routes: Routes = [
         { path: 'proximamente', component: ProximamenteComponent },
         { path: 'notificaciones', component: NotificacionesComponent },
         { path: 'configuracion', component: ConfiguracionComponent },
+        
+        // Env-creation con rutas hijas
+        {
+            path: 'env-creation',
+            component: EnvScreenComponent,
+            children: [
+                { path: 'environment', component: AmbienteComponent },
+                { path: 'type-environment', component: TypeEnvComponent },
+            ]
+        },
+        
+        // Res-creation con rutas hijas
+        {
+            path: 'res-creation',
+            component: ResourceScreenComponent,
+            children: [
+                { path: 'resources', component: ResourceComponent },
+                { path: 'states', component: ResourceStateComponent },
+                { path: 'types', component: ResourceTypeComponent },
+            ]
+        },
         ],
     },
-
-    { path: 'env-creation', component: EnvScreenComponent, canActivate: [authGuard] },
-
-    { path: 'env-creation/environment', component: AmbienteComponent, canActivate: [authGuard] },
-    { path: 'env-creation/type-environment', component: TypeEnvComponent, canActivate: [authGuard] },
-
-        // Pantalla de selección (cards)
-    { path: 'res-creation', component: ResourceScreenComponent, canActivate: [authGuard] },
-
-    // Vistas
-    { path: 'res-creation/resources', component: ResourceComponent, canActivate: [authGuard] },
-    { path: 'res-creation/states', component: ResourceStateComponent, canActivate: [authGuard] },
-    { path: 'res-creation/types', component: ResourceTypeComponent, canActivate: [authGuard] },
 
 
     { path: '**', redirectTo: '' },

@@ -1,4 +1,5 @@
-<div class="mx-auto max-w-5xl px-6 py-10">
+<!-- Mostrar cards solo si no hay ruta hija activa -->
+<div *ngIf="!isChildRouteActive" class="mx-auto max-w-5xl px-6 py-10">
     <!-- Header -->
     <header class="mb-8">
       <h1 class="text-2xl font-bold text-slate-800">Gestionar Ambientes</h1>
@@ -80,3 +81,5 @@
     </div>
   </div>
   
+  <!-- Router outlet para las rutas hijas -->
+  <router-outlet></router-outlet>
