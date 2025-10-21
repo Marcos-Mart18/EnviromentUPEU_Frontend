@@ -1,0 +1,43 @@
+<div class="mx-auto max-w-3xl px-6 py-8">
+    <h1 class="text-2xl font-bold text-slate-800">Estados de Recurso</h1>
+  
+    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+      <h2 class="mb-4 text-base font-semibold text-slate-800">Crear Estado</h2>
+      <div class="flex gap-3">
+        <input [(ngModel)]="nombre" class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200" placeholder="p. ej., Disponible" />
+        <button (click)="crear()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" [style.background]="brand">Añadir</button>
+      </div>
+    </section>
+  
+    <section class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of estados" class="border-t border-slate-100 text-sm text-slate-700">
+            <td class="px-4 py-4 font-medium">{{ e.nombre }}</td>
+            <td class="px-4 py-4">
+              <span class="rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
+                    [class.bg-lime-100]="e.activo" [class.text-lime-700]="e.activo" [class.ring-lime-200]="e.activo"
+                    [class.bg-slate-200]="!e.activo" [class.text-slate-700]="!e.activo" [class.ring-slate-300]="!e.activo">
+                {{ e.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <button (click)="toggle(e)" class="text-sm font-semibold text-emerald-700 hover:underline">
+                {{ e.activo ? 'Desactivar' : 'Activar' }}
+              </button>
+              <span class="mx-2 text-slate-300">|</span>
+              <button (click)="eliminar(e)" class="text-sm font-semibold text-red-600 hover:underline">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  

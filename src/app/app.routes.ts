@@ -10,6 +10,13 @@ import { CargaAcademicaComponent } from './features/carga-academica/carga-academ
 import { ProximamenteComponent } from './features/proximamente/proximamente.component';
 import { NotificacionesComponent } from './features/notificaciones/notificaciones.component';
 import { ConfiguracionComponent } from './features/configuracion/configuracion.component';
+import { EnvScreenComponent } from './features/env-screen/env-screen.component';
+import { TypeEnvComponent } from './features/env-screen/type-env/type-env.component';
+import { AmbienteComponent } from './features/env-screen/ambiente/ambiente.component';
+import { ResourceScreenComponent } from './features/resource-screen/resource-screen.component';
+import { ResourceComponent } from './features/resource-screen/resource/resource.component';
+import { ResourceStateComponent } from './features/resource-screen/resource-state/resource-state.component';
+import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
 
 export const routes: Routes = [
     {
@@ -38,6 +45,20 @@ export const routes: Routes = [
         { path: 'configuracion', component: ConfiguracionComponent },
         ],
     },
+
+    { path: 'env-creation', component: EnvScreenComponent },
+
+    { path: 'env-creation/environment', component: AmbienteComponent },
+    { path: 'env-creation/type-environment', component: TypeEnvComponent },
+
+        // Pantalla de selección (cards)
+    { path: 'res-creation', component: ResourceScreenComponent },
+
+    // Vistas
+    { path: 'res-creation/resources', component: ResourceComponent },
+    { path: 'res-creation/states', component: ResourceStateComponent },
+    { path: 'res-creation/types', component: ResourceTypeComponent },
+
 
     { path: '**', redirectTo: '' },
 ];
