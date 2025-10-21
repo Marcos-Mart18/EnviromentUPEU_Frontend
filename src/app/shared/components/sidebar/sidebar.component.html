@@ -87,10 +87,13 @@
           </svg>
         </div>
         <div class="ml-3 flex-1">
-          <p class="text-sm font-medium text-gray-900 dark:text-white">Diana Sánchez</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Directora</p>
+          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currentUser?.username || 'Usuario' }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ getUserRole() }}</p>
         </div>
-        <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <button 
+          (click)="logout()" 
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+          title="Cerrar sesión">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
           </svg>

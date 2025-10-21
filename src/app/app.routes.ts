@@ -17,6 +17,7 @@ import { ResourceScreenComponent } from './features/resource-screen/resource-scr
 import { ResourceComponent } from './features/resource-screen/resource/resource.component';
 import { ResourceStateComponent } from './features/resource-screen/resource-state/resource-state.component';
 import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -35,6 +36,7 @@ export const routes: Routes = [
     {
         path: 'main',
         component: MainComponent,
+        canActivate: [authGuard],
         children: [
         { path: '', redirectTo: 'menu', pathMatch: 'full' },
         { path: 'menu', component: MenuComponent },
@@ -46,18 +48,18 @@ export const routes: Routes = [
         ],
     },
 
-    { path: 'env-creation', component: EnvScreenComponent },
+    { path: 'env-creation', component: EnvScreenComponent, canActivate: [authGuard] },
 
-    { path: 'env-creation/environment', component: AmbienteComponent },
-    { path: 'env-creation/type-environment', component: TypeEnvComponent },
+    { path: 'env-creation/environment', component: AmbienteComponent, canActivate: [authGuard] },
+    { path: 'env-creation/type-environment', component: TypeEnvComponent, canActivate: [authGuard] },
 
         // Pantalla de selección (cards)
-    { path: 'res-creation', component: ResourceScreenComponent },
+    { path: 'res-creation', component: ResourceScreenComponent, canActivate: [authGuard] },
 
     // Vistas
-    { path: 'res-creation/resources', component: ResourceComponent },
-    { path: 'res-creation/states', component: ResourceStateComponent },
-    { path: 'res-creation/types', component: ResourceTypeComponent },
+    { path: 'res-creation/resources', component: ResourceComponent, canActivate: [authGuard] },
+    { path: 'res-creation/states', component: ResourceStateComponent, canActivate: [authGuard] },
+    { path: 'res-creation/types', component: ResourceTypeComponent, canActivate: [authGuard] },
 
 
     { path: '**', redirectTo: '' },
