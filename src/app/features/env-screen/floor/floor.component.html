@@ -1,0 +1,127 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      ></path>
+    </svg>
+    Volver a opciones
+  </button>
+
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Pisos (Floors)</h1>
+
+  <section
+    class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="text-base font-semibold mb-3" *ngIf="!editingId">Crear Piso</h2>
+    <div class="grid gap-3 md:grid-cols-3" *ngIf="!editingId">
+      <input
+        type="number"
+        min="0"
+        [(ngModel)]="floorNumber"
+        placeholder="Número de piso"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <select
+        [(ngModel)]="buildingId"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">Seleccione pabellón</option>
+        <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+          {{ b.name }}
+        </option>
+      </select>
+      <button
+        (click)="create()"
+        class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #bfc621"
+      >
+        Guardar
+      </button>
+    </div>
+
+    <h2 class="text-base font-semibold mb-3" *ngIf="editingId">Editar Piso</h2>
+    <div class="grid gap-3 md:grid-cols-3" *ngIf="editingId">
+      <input
+        type="number"
+        min="0"
+        [(ngModel)]="editingFloorNumber"
+        placeholder="Número de piso"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <select
+        [(ngModel)]="editingBuildingId"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">Seleccione pabellón</option>
+        <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+          {{ b.name }}
+        </option>
+      </select>
+      <div>
+        <button
+          (click)="save()"
+          class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+          style="background: #bfc621"
+        >
+          Guardar
+        </button>
+        <button (click)="cancel()" class="rounded-lg px-4 py-2 text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Listado</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Número</th>
+            <th class="px-4 py-3">Pabellón</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let f of floors"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-3">{{ f.id_floor }}</td>
+            <td class="px-4 py-3">{{ f.floor_number }}</td>
+            <td class="px-4 py-3">
+              {{ f.building.name }}
+            </td>
+            <td class="px-4 py-3">{{ f.is_active }}</td>
+            <td class="px-4 py-3">
+              <button (click)="edit(f)" class="text-emerald-700 mr-2">
+                Editar
+              </button>
+              <button (click)="remove(f)" class="text-red-600">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="floors.length === 0">
+            <td
+              colspan="5"
+              class="px-4 py-6 text-center text-sm text-slate-500"
+            >
+              Sin registros
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

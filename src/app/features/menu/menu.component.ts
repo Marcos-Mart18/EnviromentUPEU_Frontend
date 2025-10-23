@@ -1,26 +1,29 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { CalendarComponent } from '../calendar/calendar.component';
-import { MenuCooroomsComponent } from '../menu-coorooms/menu-coorooms.component';
+import { MenuCooroomsComponent } from './menu-coorooms/menu-coorooms.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { MenuAsacadComponent } from './menu-asacad/menu-asacad.component';
+import { MenuAdminComponent } from './menu-admin/menu-admin.component';
 
 @Component({
   selector: 'app-menu',
-  imports: [RouterLink, CalendarComponent, MenuCooroomsComponent, CommonModule],
+  imports: [
+    MenuCooroomsComponent,
+    CommonModule,
+    MenuAsacadComponent,
+    MenuAdminComponent,
+  ],
   templateUrl: './menu.component.html',
-  styleUrl: './menu.component.css'
+  styleUrl: './menu.component.css',
 })
 export class MenuComponent implements OnInit {
   private authService = inject(AuthService);
-  private router = inject(Router);
-  
-  currentDate = '';
+
   showAsacadMenu = false;
   showCooroomsMenu = false;
+  showAdminMenu = false;
 
   ngOnInit() {
-    this.updateCurrentDate();
     this.checkUserRole();
   }
 
@@ -29,22 +32,15 @@ export class MenuComponent implements OnInit {
     if (user) {
       this.showAsacadMenu = this.authService.hasRole('ASACAD');
       this.showCooroomsMenu = this.authService.hasRole('COOROOMS');
-      
+      this.showAdminMenu = this.authService.hasRole('ADMIN');
       // If no valid role, redirect to home or show error
-      if (!this.showAsacadMenu && !this.showCooroomsMenu) {
+      if (
+        !this.showAsacadMenu &&
+        !this.showCooroomsMenu &&
+        !this.showAdminMenu
+      ) {
         console.warn('User does not have a valid role for menu access');
       }
     }
-  }
-
-  updateCurrentDate() {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    this.currentDate = now.toLocaleDateString('es-ES', options);
   }
 }

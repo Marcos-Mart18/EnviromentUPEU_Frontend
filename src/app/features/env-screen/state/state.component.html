@@ -1,0 +1,84 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      ></path>
+    </svg>
+    Volver a opciones
+  </button>
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Estados</h1>
+  <section
+    class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="text-base font-semibold mb-3">Crear Estado</h2>
+    <div class="flex gap-3">
+      <input
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Nombre del estado"
+        class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <button
+        (click)="create()"
+        class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #bfc621"
+      >
+        Guardar
+      </button>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Listado</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let s of states"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-3">{{ s.id_state ?? "" }}</td>
+            <td class="px-4 py-3">{{ s.name }}</td>
+            <td class="px-4 py-3">
+              <span
+                class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
+                [ngClass]="estadoChipClasses(s.is_active)"
+              >
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [class.bg-green-500]="s.is_active === 'A'"
+                  [class.bg-gray-500]="s.is_active !== 'A'"
+                ></span>
+                {{ s.is_active === "A" ? "Activo" : "Inactivo" }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="states.length === 0">
+            <td
+              colspan="3"
+              class="px-4 py-6 text-center text-sm text-slate-500"
+            >
+              Sin registros
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

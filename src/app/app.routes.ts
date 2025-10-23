@@ -13,6 +13,9 @@ import { ConfiguracionComponent } from './features/configuracion/configuracion.c
 import { EnvScreenComponent } from './features/env-screen/env-screen.component';
 import { TypeEnvComponent } from './features/env-screen/type-env/type-env.component';
 import { AmbienteComponent } from './features/env-screen/ambiente/ambiente.component';
+import { BuildingComponent } from './features/env-screen/building/building.component';
+import { FloorComponent } from './features/env-screen/floor/floor.component';
+import { StateComponent } from './features/env-screen/state/state.component';
 import { ResourceScreenComponent } from './features/resource-screen/resource-screen.component';
 import { ResourceComponent } from './features/resource-screen/resource/resource.component';
 import { ResourceStateComponent } from './features/resource-screen/resource-state/resource-state.component';
@@ -53,6 +56,9 @@ export const routes: Routes = [
             children: [
                 { path: 'environment', component: AmbienteComponent },
                 { path: 'type-environment', component: TypeEnvComponent },
+                { path: 'buildings', component: BuildingComponent },
+                { path: 'floors', component: FloorComponent },
+                { path: 'states', component: StateComponent },
             ]
         },
         
