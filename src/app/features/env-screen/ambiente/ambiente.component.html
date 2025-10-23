@@ -1,177 +1,447 @@
 <div class="mx-auto max-w-5xl px-6 py-8">
-    <!-- Botón Volver -->
-    <button 
-      (click)="volver()"
-      class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-      Volver a opciones
-    </button>
+  <!-- Botón Volver -->
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      ></path>
+    </svg>
+    Volver a opciones
+  </button>
 
-    <!-- Título -->
-    <header class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-800">Gestionar Ambientes</h1>
-      <p class="mt-1 text-sm text-slate-500">
-        Añadir, editar y gestionar tus ambientes y sus tipos asociados.
-      </p>
-    </header>
-  
-    <!-- Alta de ambiente -->
-    <section class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 class="mb-4 text-base font-semibold text-slate-800">Añadir Nuevo Ambiente</h2>
-  
-      <div class="grid gap-4 md:grid-cols-2">
-        <!-- Nombre -->
-        <div class="md:col-span-2">
-          <label class="mb-1 block text-sm font-medium text-slate-700">Nombre del Ambiente</label>
-          <input
-            type="text"
-            [(ngModel)]="nuevoNombre"
-            placeholder="p. ej., Sala de Conferencias A"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-          />
-        </div>
-  
-        <!-- Tipo -->
-        <div class="md:col-span-1">
-          <label class="mb-1 block text-sm font-medium text-slate-700">Tipo de Ambiente</label>
-          <div class="relative">
-            <select
-              [(ngModel)]="nuevoTipoId"
-              class="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+  <!-- Título -->
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Gestionar Ambientes</h1>
+    <p class="mt-1 text-sm text-slate-500">
+      Añadir, editar y gestionar tus ambientes y sus tipos asociados.
+    </p>
+  </header>
+
+  <!-- Alta de ambiente -->
+  <section
+    class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="mb-4 text-base font-semibold text-slate-800">
+      Añadir Nuevo Ambiente
+    </h2>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <!-- Nombre -->
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Nombre del Ambiente</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="nuevoNombre"
+          (ngModelChange)="onFormChange()"
+          placeholder="p. ej., Sala de Conferencias A"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        />
+      </div>
+
+      <!-- Observación -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Observación</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="nuevaObservacion"
+          placeholder="p. ej., Está operativo"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          required
+        />
+      </div>
+
+      <!-- Ubicación -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Ubicación</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="nuevaUbicacion"
+          (ngModelChange)="onFormChange()"
+          placeholder="p. ej., Pabellón A, piso 1, salón A-101"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        />
+      </div>
+
+      <!-- Capacidad -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Capacidad</label
+        >
+        <input
+          type="number"
+          min="0"
+          [(ngModel)]="nuevaCapacidad"
+          (ngModelChange)="onFormChange()"
+          placeholder="p. ej., 30"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        />
+      </div>
+
+      <!-- Building -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Pabellón</label
+        >
+        <div class="relative">
+          <select
+            [(ngModel)]="nuevoBuildingId"
+            (ngModelChange)="onFormChange()"
+            class="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          >
+            <option [ngValue]="null">Seleccionar</option>
+            <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+              {{ b.name }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-3 flex items-center"
+          >
+            <svg
+              class="h-4 w-4 text-slate-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
             >
-              <option [ngValue]="null">Seleccionar</option>
-              <option *ngFor="let t of tipos" [ngValue]="t.id">{{ t.nombre }}</option>
-            </select>
-            <!-- caret -->
-            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-              <svg class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 011.08 1.04l-4.25 4.44a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
-              </svg>
-            </div>
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 011.08 1.04l-4.25 4.44a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
           </div>
         </div>
-  
-        <div class="md:col-span-1 flex items-end">
-          <button
-            (click)="crearAmbiente()"
-            class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px"
-            [ngStyle]="{ backgroundColor: verde }"
+      </div>
+
+      <!-- Tipo -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Tipo de Ambiente</label
+        >
+        <div class="relative">
+          <select
+            [(ngModel)]="nuevoTipoId"
+            (ngModelChange)="onFormChange()"
+            class="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
           >
-            Añadir Ambiente
-          </button>
+            <option [ngValue]="null">Seleccionar</option>
+            <option
+              *ngFor="let t of tipos"
+              [ngValue]="t.id_type_academic_space"
+            >
+              {{ t.name }}
+            </option>
+          </select>
+          <!-- caret -->
+          <div
+            class="pointer-events-none absolute inset-y-0 right-3 flex items-center"
+          >
+            <svg
+              class="h-4 w-4 text-slate-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 011.08 1.04l-4.25 4.44a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
       </div>
-    </section>
-  
-    <!-- Tabla -->
-    <section class="mb-8">
-      <h2 class="mb-3 text-base font-semibold text-slate-800">Ambientes Existentes</h2>
-  
-      <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-        <table class="w-full table-auto text-left">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <th class="px-4 py-3">Nombre del Ambiente</th>
-              <th class="px-4 py-3">Tipo de Ambiente</th>
-              <th class="px-4 py-3">Recursos</th>
-              <th class="px-4 py-3">Estado</th>
-              <th class="px-4 py-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let a of ambientes; trackBy: trackById" class="border-t border-slate-100 text-sm text-slate-700">
-              <td class="px-4 py-4 font-medium">{{ a.nombre }}</td>
-              <td class="px-4 py-4">
-                <a class="text-[13px] font-medium text-sky-700 hover:underline">{{ getTipoNombre(a.tipoId) }}</a>
-              </td>
-              <td class="px-4 py-4">{{ a.recursosTotales }}</td>
-              <td class="px-4 py-4">
-                <span class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
-                      [ngClass]="getBadgeClases(a.estado)">
-                  <span class="inline-block h-2 w-2 rounded-full"
-                        [style.backgroundColor]="a.estado === 'Disponible' ? verde : '#F59E0B'"></span>
-                  {{ a.estado }}
-                </span>
-              </td>
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <button (click)="editar(a)" class="text-sm font-semibold text-emerald-700 hover:underline">Editar</button>
-                  <span class="text-slate-300">|</span>
-                  <button (click)="eliminar(a)" class="text-sm font-semibold text-red-600 hover:underline">Eliminar</button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="ambientes.length === 0">
-              <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">No hay ambientes registrados.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  
-    <!-- Tarjetas de métricas -->
-    <section class="grid gap-6 md:grid-cols-2">
-      <!-- Recursos por Ambiente -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <div class="mb-4">
-          <p class="text-sm font-medium text-slate-600">Recursos por Ambiente</p>
-          <p class="text-2xl font-extrabold text-slate-900">
-            Total: {{ totalRecursos }}
-          </p>
-          <p class="mt-1 text-xs">
-            Últimos 30 días
-            <span [ngStyle]="{ color: cambioTotalPct >= 0 ? verde : '#DC2626' }" class="font-semibold">
-              {{ cambioTotalPct >= 0 ? '+' : '' }}{{ cambioTotalPct }}%
-            </span>
-          </p>
+
+      <!-- Estado -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Estado</label
+        >
+        <div class="relative">
+          <select
+            [(ngModel)]="nuevoEstadoId"
+            (ngModelChange)="onFormChange()"
+            class="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          >
+            <option [ngValue]="null">Seleccionar</option>
+            <option *ngFor="let e of estados" [ngValue]="e.id_state">
+              {{ e.name }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-3 flex items-center"
+          >
+            <svg
+              class="h-4 w-4 text-slate-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 011.08 1.04l-4.25 4.44a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
-  
-        <!-- barras -->
-        <div class="flex items-end gap-4">
-          <ng-container *ngFor="let a of ambientes">
-            <div class="flex flex-col items-center gap-2">
-              <div class="w-10 rounded-lg bg-slate-100" [style.height.px]="barAltura(a.recursosTotales)"></div>
-              <div class="w-16 text-center text-[10px] text-slate-500 leading-tight">
-                {{ a.nombre }}
-                <div class="mt-0.5 text-[11px] font-semibold text-slate-600">{{ a.recursosTotales }}</div>
+      </div>
+
+      <!-- Piso -->
+      <div class="md:col-span-1">
+        <label class="mb-1 block text-sm font-medium text-slate-700"
+          >Piso</label
+        >
+        <div class="relative">
+          <select
+            [(ngModel)]="nuevoPisoId"
+            (ngModelChange)="onFormChange()"
+            class="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          >
+            <option [ngValue]="null">Seleccionar</option>
+            <option *ngFor="let f of floorsFiltrados" [ngValue]="f.id_floor">
+              Piso {{ f.floor_number }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-3 flex items-center"
+          >
+            <svg
+              class="h-4 w-4 text-slate-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 011.08 1.04l-4.25 4.44a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-1 flex items-end">
+        <button
+          (click)="crearAmbiente()"
+          [disabled]="!crearAmbienteValido"
+          class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngStyle]="{ backgroundColor: verde }"
+          title="Añadir Ambiente"
+        >
+          Añadir Ambiente
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla -->
+  <section class="mb-8">
+    <h2 class="mb-3 text-base font-semibold text-slate-800">
+      Ambientes Existentes
+    </h2>
+
+    <!-- filtro por pabellón -->
+    <div class="mb-4 flex items-center gap-3">
+      <label class="text-sm text-slate-700">Filtrar por Pabellón:</label>
+      <select
+        [(ngModel)]="filtroBuildingId"
+        class="rounded-lg border border-slate-300 px-3 py-1 text-sm"
+      >
+        <option [ngValue]="null">Todos</option>
+        <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+          {{ b.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Capacidad</th>
+            <th class="px-4 py-3">Ubicación</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let a of ambientesFiltrados;
+              let i = index;
+              trackBy: trackById
+            "
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-4">{{ i + 1 }}</td>
+            <td class="px-4 py-4 font-medium">{{ a.nombre }}</td>
+            <td class="px-4 py-4">{{ a.capacidad }}</td>
+            <td class="px-4 py-4">{{ a.location }}</td>
+            <td class="px-4 py-4">
+              <span
+                class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
+                [ngClass]="getBadgeClases(a.estado)"
+              >
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [style.backgroundColor]="
+                    a.estado === 'Disponible' ? verde : '#F59E0B'
+                  "
+                ></span>
+                {{ a.estado }}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-3">
+                <button
+                  (click)="editar(a)"
+                  title="Editar"
+                  class="text-slate-600 hover:text-emerald-700"
+                >
+                  <!-- lápiz -->
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="eliminar(a)"
+                  title="Eliminar"
+                  class="text-slate-600 hover:text-red-600"
+                >
+                  <!-- papelera -->
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="ambientesFiltrados.length === 0">
+            <td
+              colspan="6"
+              class="px-4 py-8 text-center text-sm text-slate-500"
+            >
+              No hay ambientes registrados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Tarjetas de métricas -->
+  <section class="grid gap-6 md:grid-cols-2">
+    <!-- Capacidad por Ambiente -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <div class="mb-4">
+        <p class="text-sm font-medium text-slate-600">Capacidad por Ambiente</p>
+        <p class="text-2xl font-extrabold text-slate-900">
+          Total: {{ totalCapacidad }}
+        </p>
+        <p class="mt-1 text-xs">
+          Últimos 30 días
+          <span
+            [ngStyle]="{ color: cambioTotalPct >= 0 ? verde : '#DC2626' }"
+            class="font-semibold"
+          >
+            {{ cambioTotalPct >= 0 ? "+" : "" }}{{ cambioTotalPct }}%
+          </span>
+        </p>
+      </div>
+
+      <!-- barras -->
+      <div class="flex items-end gap-4">
+        <ng-container *ngFor="let a of ambientes">
+          <div class="flex flex-col items-center gap-2">
+            <div
+              class="w-10 rounded-lg bg-slate-100"
+              [style.height.px]="barAltura(a.capacidad)"
+            ></div>
+            <div
+              class="w-16 text-center text-[10px] text-slate-500 leading-tight"
+            >
+              {{ a.nombre }}
+              <div class="mt-0.5 text-[11px] font-semibold text-slate-600">
+                {{ a.capacidad }}
               </div>
             </div>
-          </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Estado de los Ambientes -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <div class="mb-4">
+        <p class="text-sm font-medium text-slate-600">
+          Estado de los Ambientes
+        </p>
+        <p class="text-2xl font-extrabold text-slate-900">
+          Disponibles: {{ totalDisponibles }}
+        </p>
+        <p class="mt-1 text-xs">
+          Últimos 30 días
+          <span
+            [ngStyle]="{ color: cambioDispPct >= 0 ? verde : '#DC2626' }"
+            class="font-semibold"
+          >
+            {{ cambioDispPct >= 0 ? "+" : "" }}{{ cambioDispPct }}%
+          </span>
+        </p>
+      </div>
+
+      <!-- barras de estado -->
+      <div class="flex items-end gap-6">
+        <div class="flex flex-col items-center gap-2">
+          <div
+            class="w-10 rounded-lg"
+            [style.backgroundColor]="verde"
+            [style.height.px]="barAlturaEstado(totalDisponibles)"
+          ></div>
+          <div class="text-[11px] font-medium text-slate-600">Disponible</div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2">
+          <div
+            class="w-10 rounded-lg bg-amber-300"
+            [style.height.px]="barAlturaEstado(totalOcupados)"
+          ></div>
+          <div class="text-[11px] font-medium text-slate-600">Ocupado</div>
         </div>
       </div>
-  
-      <!-- Estado de los Recursos -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <div class="mb-4">
-          <p class="text-sm font-medium text-slate-600">Estado de los Recursos</p>
-          <p class="text-2xl font-extrabold text-slate-900">
-            Disponibles: {{ totalDisponibles }}
-          </p>
-          <p class="mt-1 text-xs">
-            Últimos 30 días
-            <span [ngStyle]="{ color: cambioDispPct >= 0 ? verde : '#DC2626' }" class="font-semibold">
-              {{ cambioDispPct >= 0 ? '+' : '' }}{{ cambioDispPct }}%
-            </span>
-          </p>
-        </div>
-  
-        <!-- barras de estado -->
-        <div class="flex items-end gap-6">
-          <div class="flex flex-col items-center gap-2">
-            <div class="w-10 rounded-lg" [style.backgroundColor]="verde"
-                 [style.height.px]="barAlturaEstado(totalDisponibles)"></div>
-            <div class="text-[11px] font-medium text-slate-600">Disponible</div>
-          </div>
-  
-          <div class="flex flex-col items-center gap-2">
-            <div class="w-10 rounded-lg bg-amber-300"
-                 [style.height.px]="barAlturaEstado(totalOcupados)"></div>
-            <div class="text-[11px] font-medium text-slate-600">Ocupado</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-  
+    </div>
+  </section>
+</div>

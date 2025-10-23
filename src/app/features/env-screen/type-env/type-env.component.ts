@@ -1,145 +1,125 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-type ID = number;
-
-interface TipoAmbiente {
-  id: ID;
-  nombre: string;
-  descripcion: string;
-  activo: boolean;
-}
-
+import { TypeAcademicSpace } from '../../../core/models/type-academic-space';
+import { TypeAcademicSpaceService } from '../../../core/services/type-academic-space.service';
 
 @Component({
   selector: 'app-type-env',
   imports: [CommonModule, FormsModule],
   templateUrl: './type-env.component.html',
-  styleUrl: './type-env.component.css'
+  styleUrls: ['./type-env.component.css'],
 })
-export class TypeEnvComponent {
-constructor(private router: Router) {}
+export class TypeEnvComponent implements OnInit {
+  constructor(private router: Router) {}
 
-// --- Form (crear / editar) ---
-nuevoNombre = '';
-nuevaDescripcion = '';
-editandoId: ID | null = null;
+  nuevoNombre = '';
+  editandoId?: number | null = null;
+  search = '';
 
-// --- Buscador ---
-search = '';
+  private env = inject(TypeAcademicSpaceService);
 
-// --- Datos de ejemplo ---
-tipos: TipoAmbiente[] = [
-  {
-    id: 1,
-    nombre: 'Sala de Reuniones A',
-    descripcion: 'Una pequeña sala de reuniones para hasta 6 personas.',
-    activo: true,
-  },
-  {
-    id: 2,
-    nombre: 'Salón de Conferencias B',
-    descripcion: 'Un gran salón de conferencias para hasta 50 personas.',
-    activo: true,
-  },
-  {
-    id: 3,
-    nombre: 'Sala de Capacitación C',
-    descripcion:
-      'Una sala de capacitación equipada con computadoras para 20 personas.',
-    activo: false,
-  },
-  {
-    id: 4,
-    nombre: 'Estudio D',
-    descripcion: 'Un estudio de grabación con insonorización.',
-    activo: true,
-  },
-  {
-    id: 5,
-    nombre: 'Laboratorio E',
-    descripcion: 'Un laboratorio con equipo especializado.',
-    activo: true,
-  },
-];
+  tipos: TypeAcademicSpace[] = [];
 
-get tiposFiltrados(): TipoAmbiente[] {
-  const q = this.search.trim().toLowerCase();
-  if (!q) return this.tipos;
-  return this.tipos.filter(
-    (t) =>
-      t.nombre.toLowerCase().includes(q) ||
-      t.descripcion.toLowerCase().includes(q),
-  );
-}
-
-crearOActualizar(): void {
-  const nombre = this.nuevoNombre.trim();
-  const desc = this.nuevaDescripcion.trim();
-
-  if (!nombre) return;
-
-  if (this.editandoId == null) {
-    // Crear
-    const nuevo: TipoAmbiente = {
-      id: this.nextId(),
-      nombre,
-      descripcion: desc,
-      activo: true,
-    };
-    this.tipos = [nuevo, ...this.tipos];
-  } else {
-    // Guardar edición
-    this.tipos = this.tipos.map((t) =>
-      t.id === this.editandoId ? { ...t, nombre, descripcion: desc } : t,
-    );
+  ngOnInit(): void {
+    this.cargarTipos();
   }
-  this.resetForm();
-}
 
-editar(t: TipoAmbiente): void {
-  this.editandoId = t.id;
-  this.nuevoNombre = t.nombre;
-  this.nuevaDescripcion = t.descripcion;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+  private cargarTipos(): void {
+    this.env.getTypeAcademicSpaces().subscribe({
+      next: (res: any) => {
+        const items = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res)
+          ? res
+          : [];
+        this.tipos = items.map(
+          (it: any, idx: number) =>
+            new TypeAcademicSpace(
+              it.name ?? it.nombre ?? '—',
+              it.is_active ?? it.activo ?? 'A',
+              it.id ?? it.id_type ?? idx + 1
+            )
+        );
+      },
+      error: () => {
+        this.tipos = [];
+      },
+    });
+  }
 
-cancelarEdicion(): void {
-  this.resetForm();
-}
+  get tiposFiltrados(): TypeAcademicSpace[] {
+    const q = this.search.trim().toLowerCase();
+    if (!q) return this.tipos;
+    return this.tipos.filter((t) => t.name.toLowerCase().includes(q));
+  }
 
-eliminar(t: TipoAmbiente): void {
-  const ok = confirm(`¿Eliminar "${t.nombre}"?`);
-  if (!ok) return;
-  this.tipos = this.tipos.filter((x) => x.id !== t.id);
-}
+  crearOActualizar(): void {
+    const nombre = this.nuevoNombre.trim();
+    if (!nombre) return;
 
-toggleEstado(t: TipoAmbiente): void {
-  t.activo = !t.activo;
-}
+    if (this.editandoId == null) {
+      this.env
+        .createTypeAcademicSpace({ name: nombre, is_active: 'A' })
+        .subscribe({
+          next: () => {
+            this.cargarTipos();
+          },
+          error: () => {},
+        });
+    } else {
+      this.env
+        .updateTypeAcademicSpace(this.editandoId, {
+          name: nombre,
+          is_active: 'A',
+        })
+        .subscribe({
+          next: () => this.cargarTipos(),
+          error: () => {},
+        });
+    }
+    this.resetForm();
+  }
 
-estadoChipClasses(activo: boolean): string {
-  return activo
-    ? 'bg-green-100 text-green-700'
-    : 'bg-gray-200 text-gray-700';
-}
+  toggleEstado(t: TypeAcademicSpace): void {
+    t.is_active = t.is_active === 'A' ? 'I' : 'A';
+  }
 
-// --- helpers ---
-private nextId(): ID {
-  return (Math.max(0, ...this.tipos.map((t) => t.id)) || 0) + 1;
-}
+  editar(t: TypeAcademicSpace): void {
+    this.editandoId = t.id_type_academic_space;
+    this.nuevoNombre = t.name;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-private resetForm(): void {
-  this.nuevoNombre = '';
-  this.nuevaDescripcion = '';
-  this.editandoId = null;
-}
+  cancelarEdicion(): void {
+    this.resetForm();
+  }
 
-trackById = (_: number, item: TipoAmbiente) => item.id;
+  eliminar(t: TypeAcademicSpace): void {
+    const ok = confirm(`¿Eliminar "${t.name}"?`);
+    if (!ok) return;
+    this.env.deleteTypeAcademicSpace(t.id_type_academic_space).subscribe({
+      next: () => this.cargarTipos(),
+      error: () => {},
+    });
+  }
 
-volver(): void {
-  this.router.navigate(['/main/env-creation']);
-}
+  estadoChipClasses(is_active: string): string {
+    return is_active === 'A'
+      ? 'bg-green-100 text-green-700'
+      : 'bg-gray-200 text-gray-700';
+  }
+
+  private resetForm(): void {
+    this.nuevoNombre = '';
+    this.editandoId = null;
+  }
+
+  trackById = (_: number, item: TypeAcademicSpace) =>
+    item.id_type_academic_space;
+
+  volver(): void {
+    this.router.navigate(['/main/env-creation']);
+  }
 }

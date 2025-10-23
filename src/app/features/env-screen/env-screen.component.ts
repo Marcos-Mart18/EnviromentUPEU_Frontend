@@ -37,6 +37,30 @@ export class EnvScreenComponent implements OnInit {
       iconPath:
         'M4 6h16M4 12h16M4 18h10', // icono "lista"
     },
+    {
+      key: 'building',
+      title: 'Pabellones',
+      desc: 'Gestiona los pabellones (buildings).',
+      route: 'buildings',
+      cta: 'Ir a Pabellones',
+      iconPath: 'M4 6h16M4 12h16M4 18h10'
+    },
+    {
+      key: 'floor',
+      title: 'Pisos',
+      desc: 'Gestiona los pisos por pabellón.',
+      route: 'floors',
+      cta: 'Ir a Pisos',
+      iconPath: 'M4 6h16M4 12h16M4 18h10'
+    },
+    {
+      key: 'state',
+      title: 'Estados',
+      desc: 'Gestiona los estados de ambientes.',
+      route: 'states',
+      cta: 'Ir a Estados',
+      iconPath: 'M4 6h16M4 12h16M4 18h10'
+    },
   ];
 
   constructor(private router: Router, private route: ActivatedRoute) {}

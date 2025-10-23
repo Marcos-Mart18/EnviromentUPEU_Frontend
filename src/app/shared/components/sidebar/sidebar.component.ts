@@ -9,7 +9,7 @@ import { User } from '../../../core/models/auth.model';
   selector: 'app-sidebar',
   imports: [RouterLink, CommonModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
+  styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent {
   private authService = inject(AuthService);
@@ -19,13 +19,13 @@ export class SidebarComponent {
 
   constructor(private router: Router) {
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentRoute = event.url;
       });
-    
+
     // Suscribirse al usuario actual
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
   }
@@ -45,7 +45,7 @@ export class SidebarComponent {
       },
       error: (error) => {
         console.error('Error en logout', error);
-      }
+      },
     });
   }
 
@@ -63,5 +63,9 @@ export class SidebarComponent {
 
   isCoorooms(): boolean {
     return this.hasRole('COOROOMS');
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('ADMIN');
   }
 }

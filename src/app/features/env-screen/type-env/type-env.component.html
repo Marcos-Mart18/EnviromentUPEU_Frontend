@@ -1,183 +1,173 @@
 <div class="mx-auto max-w-5xl px-6 py-8">
-    <!-- Botón Volver -->
-    <button 
-      (click)="volver()"
-      class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-      Volver a opciones
-    </button>
+  <!-- Botón Volver -->
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      ></path>
+    </svg>
+    Volver a opciones
+  </button>
 
-    <!-- Header -->
-    <header class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-800">Tipos de Ambiente</h1>
-      <p class="mt-1 text-sm text-slate-500">
-        Administra los diferentes tipos de ambientes disponibles para reservar.
-      </p>
-    </header>
-  
-    <!-- Card: Crear/Editar -->
-    <section
-      class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-    >
-      <h2 class="mb-4 text-base font-semibold text-slate-800">
-        {{ editandoId ? 'Editar Tipo de Ambiente' : 'Crear Nuevo Tipo de Ambiente' }}
-      </h2>
-  
-      <div class="grid gap-4">
-        <!-- Nombre -->
-        <div>
-          <label
-            for="nombre"
-            class="mb-1 block text-sm font-medium text-slate-700"
-            >Nombre del Tipo de Ambiente</label
-          >
-          <input
-            id="nombre"
-            type="text"
-            [(ngModel)]="nuevoNombre"
-            placeholder="Ej. Sala de Reuniones, Sala de Conferencias…"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none ring-0 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-          />
-        </div>
-  
-        <!-- Descripción -->
-        <div>
-          <label
-            for="descripcion"
-            class="mb-1 block text-sm font-medium text-slate-700"
-            >Descripción</label
-          >
-          <textarea
-            id="descripcion"
-            rows="4"
-            [(ngModel)]="nuevaDescripcion"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none ring-0 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-            placeholder=""
-          ></textarea>
-        </div>
-  
-        <!-- Botones -->
-        <div class="flex items-center gap-3">
-          <button
-            (click)="crearOActualizar()"
-            class="inline-flex items-center rounded-lg bg-[#BFC621] px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px"
-          >
-            {{ editandoId ? 'Guardar Cambios' : 'Crear Tipo de Ambiente' }}
-          </button>
-  
-          <button
-            *ngIf="editandoId !== null"
-            (click)="cancelarEdicion()"
-            class="text-sm font-medium text-slate-600 hover:text-slate-800"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-    </section>
-  
-    <!-- Lista -->
-    <section>
-      <h2 class="mb-3 text-base font-semibold text-slate-800">
-        Tipos de Ambiente Existentes
-      </h2>
-  
-      <!-- Barra de búsqueda -->
-      <div
-        class="mb-3 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50/60 px-3 py-2"
-      >
-        <!-- icono -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          class="h-5 w-5 shrink-0 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
+  <!-- Header -->
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Tipos de Ambiente</h1>
+    <p class="mt-1 text-sm text-slate-500">
+      Administra los diferentes tipos de ambientes disponibles para reservar.
+    </p>
+  </header>
+
+  <!-- Card: Crear/Editar -->
+  <section
+    class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="mb-4 text-base font-semibold text-slate-800">
+      {{
+        editandoId ? "Editar Tipo de Ambiente" : "Crear Nuevo Tipo de Ambiente"
+      }}
+    </h2>
+
+    <div class="grid gap-4">
+      <!-- Nombre -->
+      <div>
+        <label
+          for="nombre"
+          class="mb-1 block text-sm font-medium text-slate-700"
+          >Nombre del Tipo de Ambiente</label
         >
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="m20 20-3.5-3.5"></path>
-        </svg>
         <input
+          id="nombre"
           type="text"
-          [(ngModel)]="search"
-          placeholder="Buscar tipos de ambiente"
-          class="w-full border-0 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none focus:ring-0"
+          [(ngModel)]="nuevoNombre"
+          placeholder="Ej. Sala de Reuniones, Sala de Conferencias…"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none ring-0 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
         />
       </div>
-  
-      <!-- Tabla -->
-      <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-        <table class="w-full table-auto text-left">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <th class="px-4 py-3">Nombre</th>
-              <th class="px-4 py-3">Descripción</th>
-              <th class="px-4 py-3">Estado</th>
-              <th class="px-4 py-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              *ngFor="let t of tiposFiltrados; trackBy: trackById"
-              class="border-t border-slate-100 text-sm text-slate-700"
-            >
-              <td class="px-4 py-4 font-medium">{{ t.nombre }}</td>
-              <td class="px-4 py-4">
-                <p class="leading-snug">
-                  {{ t.descripcion }}
-                </p>
-              </td>
-              <td class="px-4 py-4">
-                <span
-                  class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
-                  [ngClass]="estadoChipClasses(t.activo)"
-                >
-                  <span
-                    class="inline-block h-2 w-2 rounded-full"
-                    [class.bg-green-500]="t.activo"
-                    [class.bg-gray-500]="!t.activo"
-                  ></span>
-                  {{ t.activo ? 'Activo' : 'Inactivo' }}
-                </span>
-              </td>
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <button
-                    (click)="editar(t)"
-                    class="text-sm font-semibold text-emerald-700 hover:underline"
-                  >
-                    Editar
-                  </button>
-                  <span class="text-slate-300">|</span>
-                  <button
-                    (click)="eliminar(t)"
-                    class="text-sm font-semibold text-red-600 hover:underline"
-                  >
-                    Eliminar
-                  </button>
-                  <span class="text-slate-300">|</span>
-                  <button
-                    (click)="toggleEstado(t)"
-                    class="text-xs text-slate-500 hover:text-slate-700"
-                    title="Activar/Inactivar"
-                  >
-                    {{ t.activo ? 'Inactivar' : 'Activar' }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-  
-            <tr *ngIf="tiposFiltrados.length === 0">
-              <td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">
-                No se encontraron tipos que coincidan con “{{ search }}”.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- Botones -->
+      <div class="flex items-center gap-3">
+        <button
+          (click)="crearOActualizar()"
+          class="inline-flex items-center rounded-lg bg-[#BFC621] px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px"
+        >
+          {{ editandoId ? "Guardar Cambios" : "Crear Tipo de Ambiente" }}
+        </button>
+
+        <button
+          *ngIf="editandoId !== null"
+          (click)="cancelarEdicion()"
+          class="text-sm font-medium text-slate-600 hover:text-slate-800"
+        >
+          Cancelar
+        </button>
       </div>
-    </section>
-  </div>
-  
+    </div>
+  </section>
+
+  <!-- Lista -->
+  <section>
+    <h2 class="mb-3 text-base font-semibold text-slate-800">
+      Tipos de Ambiente Existentes
+    </h2>
+
+    <!-- Barra de búsqueda -->
+    <div
+      class="mb-3 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50/60 px-3 py-2"
+    >
+      <!-- icono -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="h-5 w-5 shrink-0 text-slate-400"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-3.5-3.5"></path>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="search"
+        placeholder="Buscar tipos de ambiente"
+        class="w-full border-0 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none focus:ring-0"
+      />
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let t of tiposFiltrados; trackBy: trackById"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-4 font-medium">{{ t.name }}</td>
+            <td class="px-4 py-4">
+              <span
+                class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
+                [ngClass]="estadoChipClasses(t.is_active)"
+              >
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [class.bg-green-500]="t.is_active === 'A'"
+                  [class.bg-gray-500]="t.is_active === 'I'"
+                ></span>
+                {{ t.is_active === "A" ? "Activo" : "Inactivo" }}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-3">
+                <button
+                  (click)="editar(t)"
+                  class="text-sm font-semibold text-emerald-700 hover:underline"
+                >
+                  Editar
+                </button>
+                <span class="text-slate-300">|</span>
+                <button
+                  (click)="eliminar(t)"
+                  class="text-sm font-semibold text-red-600 hover:underline"
+                >
+                  Eliminar
+                </button>
+                <span class="text-slate-300">|</span>
+                <button
+                  (click)="toggleEstado(t)"
+                  class="text-xs text-slate-500 hover:text-slate-700"
+                  title="Activar/Inactivar"
+                >
+                  {{ t.is_active === "A" ? "Inactivar" : "Activar" }}
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="tiposFiltrados.length === 0">
+            <td
+              colspan="3"
+              class="px-4 py-8 text-center text-sm text-slate-500"
+            >
+              No se encontraron tipos que coincidan con “{{ search }}”.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
