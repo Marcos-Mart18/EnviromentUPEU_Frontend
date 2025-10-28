@@ -1,130 +1,100 @@
-<div class="mx-auto max-w-5xl px-6 py-8">
-    <!-- Botón Volver -->
-    <button 
-      (click)="volver()"
-      class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-      Volver a opciones
-    </button>
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <!-- Botón Volver -->
+  <button (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Volver a opciones
+  </button>
 
-    <h1 class="text-2xl font-bold text-slate-800">Tipos de Recurso</h1>
-  
-    <section class="mt-6 grid gap-6 md:grid-cols-2">
-      <!-- Crear Tipo -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <h2 class="mb-4 text-base font-semibold text-slate-800">Crear Tipo de Recurso</h2>
-        <div class="grid gap-3">
-          <input [(ngModel)]="nombreTipo" placeholder="p. ej., Proyector"
-                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200"/>
-          <select [(ngModel)]="categoriaId"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200">
-            <option [ngValue]="null">Categoría</option>
-            <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
-          </select>
-          <button (click)="crearTipo()" [style.background]="brand"
-                  class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900">Añadir Tipo</button>
-          <p class="text-xs text-slate-500">Tip: debes crear <b>Tipos</b> y <b>Estados</b> antes de registrar un Recurso.</p>
-        </div>
+  <!-- Título principal -->
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">
+    Tipos de Recursos (Resource Types)
+  </h1>
+
+  <!-- Sección de creación / edición -->
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">
+      {{ editing ? "Editar Tipo de Recurso" : "Crear Tipo de Recurso" }}
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <input type="text" [(ngModel)]="name" placeholder="Nombre del tipo de recurso"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
-  
-      <!-- Crear Categoría -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <h2 class="mb-4 text-base font-semibold text-slate-800">Crear Categoría</h2>
-        <div class="flex gap-3">
-          <input [(ngModel)]="nombreCat" placeholder="p. ej., Informática"
-                 class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200"/>
-          <button (click)="crearCategoria()" [style.background]="brand"
-                  class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900">Añadir</button>
-        </div>
+
+      <div>
+        <select [(ngModel)]="selectedCategoryId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">Seleccionar categoría</option>
+          <option *ngFor="let c of categories" [ngValue]="c.idCategoryResource">
+            {{ c.name }}
+          </option>
+        </select>
       </div>
-    </section>
-  
-    <!-- Lista -->
-    <section class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-      <table class="w-full table-auto text-left">
-        <thead class="bg-slate-50">
-          <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            <th class="px-4 py-3">Tipo</th>
-            <th class="px-4 py-3">Categoría</th>
-            <th class="px-4 py-3">Estado</th>
-            <th class="px-4 py-3">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of tipos" class="border-t border-slate-100 text-sm text-slate-700">
-            <td class="px-4 py-4 font-medium">{{ t.nombre }}</td>
-            <td class="px-4 py-4">{{ getCategoriaNombre(t.categoriaId) }}</td>
-            <td class="px-4 py-4">
-              <span class="rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
-                [class.bg-lime-100]="t.activo" [class.text-lime-700]="t.activo" [class.ring-lime-200]="t.activo"
-                [class.bg-slate-200]="!t.activo" [class.text-slate-700]="!t.activo" [class.ring-slate-300]="!t.activo">
-                {{ t.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td class="px-4 py-4">
-              <button (click)="toggleTipo(t)" class="text-sm font-semibold text-emerald-700 hover:underline">
-                {{ t.activo ? 'Desactivar' : 'Activar' }}
-              </button>
-              <span class="mx-2 text-slate-300">|</span>
-              <button (click)="eliminarTipo(t)" class="text-sm font-semibold text-red-600 hover:underline">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    </div>
 
-    <!-- ===== CATEGORÍAS ===== -->
-<section class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-  <table class="w-full table-auto text-left">
-    <thead class="bg-slate-50">
-      <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-        <th class="px-4 py-3">Categoría</th>
-        <th class="px-4 py-3">Tipos usando</th>
-        <th class="px-4 py-3">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let c of categorias" class="border-t border-slate-100 text-sm text-slate-700">
-        <td class="px-4 py-4 font-medium">{{ c.nombre }}</td>
-        <td class="px-4 py-4">{{ usosDeCategoria(c.id) }}</td>
-        <td class="px-4 py-4">
-          <!-- Eliminar directo (solo si no hay usos) -->
-          <button
-            (click)="eliminarCategoria(c)"
-            class="text-sm font-semibold text-red-600 hover:underline"
-            [class.opacity-40]="usosDeCategoria(c.id) > 0"
-            [disabled]="usosDeCategoria(c.id) > 0"
-          >
-            Eliminar
-          </button>
+    <div class="flex items-center gap-3 mt-4">
+      <label class="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" [(ngModel)]="isActive" class="rounded border-slate-300 text-slate-600" />
+        Activo
+      </label>
 
-          <!-- Reasignar y eliminar (si hay usos) -->
-          <ng-container *ngIf="usosDeCategoria(c.id) > 0">
-            <span class="mx-2 text-slate-300">|</span>
-            <select
-              class="rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-slate-200"
-              [(ngModel)]="reassignTarget[c.id]"
-            >
-              <option [ngValue]="null">Reasignar a…</option>
-              <option *ngFor="let d of categoriasDestino(c.id)" [ngValue]="d.id">
-                {{ d.nombre }}
-              </option>
-            </select>
-            <button
-              class="ml-2 rounded-md px-2 py-1 text-xs font-semibold text-slate-900"
-              [style.background]="'#BFC621'"
-              (click)="reasignarYEliminar(c, reassignTarget[c.id] ?? null)"
-            >
-              Reasignar y eliminar
+      <button (click)="createOrUpdate()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #bfc621">
+        {{ editing ? "Actualizar" : "Guardar" }}
+      </button>
+
+      <button *ngIf="editing" (click)="resetForm()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #fca5a5">
+        Cancelar
+      </button>
+    </div>
+  </section>
+
+  <!-- Sección: listado de tipos de recursos -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Tipos de Recursos</h2>
+      <button (click)="showResourceTypesList = !showResourceTypesList" class="text-sm text-slate-600">
+        {{ showResourceTypesList ? "Ocultar" : "Mostrar" }} lista
+      </button>
+    </div>
+
+    <div *ngIf="showResourceTypesList" class="mt-4">
+      <ul class="divide-y divide-slate-100">
+        <li *ngFor="let rt of resourceTypes" class="py-3 flex items-start justify-between">
+          <div>
+            <div class="font-medium">{{ rt.name }}</div>
+            <div class="text-xs text-slate-500">
+              Categoría:
+              {{ rt.categoryResource?.name || "—" }}
+            </div>
+            <div class="text-xs text-slate-500">
+              Estado: {{ rt.isActive ? "Activo" : "Inactivo" }}
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button (click)="edit(rt)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+              </svg>
             </button>
-          </ng-container>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+            <button (click)="remove(rt)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+              </svg>
+            </button>
+          </div>
+        </li>
 
-  </div>
-  
+        <li *ngIf="resourceTypes.length === 0" class="py-3 text-sm text-slate-500">
+          No hay tipos de recursos registrados.
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>

@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-interface Categoria { id: number; nombre: string; activo: boolean; }
-interface Tipo { id: number; nombre: string; activo: boolean; categoriaId: number | null; }
+import { ResourceType } from '../../../core/models/resource-type.model';
+import { CategoryResource } from '../../../core/models/category-resource.model';
+import { ResourceTypeService } from '../../../core/services/resource-type.service';
+import { CategoryResourceService } from '../../../core/services/category-resource.service';
 
 @Component({
   selector: 'app-resource-type',
@@ -13,88 +14,151 @@ interface Tipo { id: number; nombre: string; activo: boolean; categoriaId: numbe
   templateUrl: './resource-type.component.html',
   styleUrls: ['./resource-type.component.css'],
 })
-export class ResourceTypeComponent {
-  readonly brand = '#BFC621';
-  reassignTarget: Record<number, number | null> = {};
+export class ResourceTypeComponent implements OnInit {
+  // Inyecciones
+  private resourceTypeService = inject(ResourceTypeService);
+  private categoryResourceService = inject(CategoryResourceService);
+  private router = inject(Router);
 
-  constructor(private router: Router) {}
+  // Datos principales
+  resourceTypes: ResourceType[] = [];
+  categories: CategoryResource[] = [];
 
-  categorias: Categoria[] = [
-    { id: 1, nombre: 'Audiovisual', activo: true },
-    { id: 2, nombre: 'Informática', activo: true },
-  ];
-  tipos: Tipo[] = [
-    { id: 1, nombre: 'Proyector', activo: true, categoriaId: 1 },
-    { id: 2, nombre: 'Portátil', activo: true, categoriaId: 2 },
-  ];
+  // Campos de formulario
+  name = '';
+  isActive = true;
+  selectedCategoryId: number | null = null;
 
-  // form tipo
-  nombreTipo = '';
-  categoriaId: number | null = null;
+  // Control de edición
+  editingId?: number | null = null;
+  editing = false;
 
-  // form categoría inline
-  nombreCat = '';
+  // Mostrar u ocultar lista
+  showResourceTypesList = false;
 
-  getCategoriaNombre = (id: number | null) => this.categorias.find(c => c.id === id)?.nombre ?? '-';
-
-  crearTipo() {
-    const n = (this.nombreTipo || '').trim();
-    if (!n || !this.categoriaId) return;
-    const id = (Math.max(0, ...this.tipos.map(t => t.id)) || 0) + 1;
-    this.tipos = [{ id, nombre: n, activo: true, categoriaId: this.categoriaId }, ...this.tipos];
-    this.nombreTipo = ''; this.categoriaId = null;
+  ngOnInit(): void {
+    this.loadResourceTypes();
+    this.loadCategories();
   }
 
-  crearCategoria() {
-    const n = (this.nombreCat || '').trim();
+  // 🔹 Cargar lista de tipos de recursos
+  loadResourceTypes(): void {
+    this.resourceTypeService.getResourceTypes().subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res)
+          ? res
+          : [];
+        this.resourceTypes = data.map(
+          (it: any, idx: number) =>
+            new ResourceType(
+              it.name ?? '—',
+              it.isActive ?? true,
+              it.idCategoryResource ?? it.categoryResource?.idCategoryResource,
+              it.idResourceType ?? it.id ?? idx + 1,
+              it.categoryResource
+                ? new CategoryResource(
+                    it.categoryResource.name ?? '',
+                    it.categoryResource.isActive ?? true,
+                    it.categoryResource.idCategoryResource
+                  )
+                : undefined
+            )
+        );
+      },
+      error: () => {
+        this.resourceTypes = [];
+      },
+    });
+  }
+
+  // 🔹 Cargar categorías para el selector
+  loadCategories(): void {
+    this.categoryResourceService.getCategoryResources().subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res)
+          ? res
+          : [];
+        this.categories = data.map(
+          (it: any, idx: number) =>
+            new CategoryResource(
+              it.name ?? '—',
+              it.isActive ?? true,
+              it.idCategoryResource ?? it.id ?? idx + 1
+            )
+        );
+      },
+      error: () => {
+        this.categories = [];
+      },
+    });
+  }
+
+  // 🔹 Crear o actualizar
+  createOrUpdate(): void {
+    const n = this.name.trim();
     if (!n) return;
-    const id = (Math.max(0, ...this.categorias.map(c => c.id)) || 0) + 1;
-    this.categorias = [{ id, nombre: n, activo: true }, ...this.categorias];
-    this.nombreCat = '';
+
+    const body = {
+      name: n,
+      isActive: this.isActive,
+      idCategoryResource: this.selectedCategoryId ?? undefined,
+    };
+
+    if (this.editing && this.editingId != null) {
+      this.resourceTypeService.updateResourceType(this.editingId, body).subscribe({
+        next: () => {
+          this.resetForm();
+          this.loadResourceTypes();
+        },
+        error: () => {},
+      });
+    } else {
+      this.resourceTypeService.createResourceType(body).subscribe({
+        next: () => {
+          this.resetForm();
+          this.loadResourceTypes();
+        },
+        error: () => {},
+      });
+    }
   }
 
-  toggleTipo(t: Tipo) { t.activo = !t.activo; }
-  eliminarTipo(t: Tipo) {
-    if (!confirm(`¿Eliminar tipo "${t.nombre}"?`)) return;
-    this.tipos = this.tipos.filter(x => x.id !== t.id);
+  // 🔹 Editar registro existente
+  edit(rt: ResourceType): void {
+    this.editing = true;
+    this.editingId = rt.idResourceType ?? null;
+    this.name = rt.name;
+    this.isActive = rt.isActive;
+    this.selectedCategoryId = rt.idCategoryResource ?? null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 🔹 Eliminar registro
+  remove(rt: ResourceType): void {
+    const ok = confirm(`¿Eliminar tipo de recurso "${rt.name}"?`);
+    if (!ok || !rt.idResourceType) return;
 
-// ¿Cuántos tipos usan una categoría?
-usosDeCategoria(id: number): number {
-  return this.tipos.filter(t => t.categoriaId === id).length;
-}
-
-// Eliminar si NO tiene usos
-eliminarCategoria(cat: Categoria) {
-  const usos = this.usosDeCategoria(cat.id);
-  if (usos > 0) {
-    alert(`No puedes eliminar "${cat.nombre}" porque ${usos} tipo(s) la usan. Reasigna o usa "Reasignar y eliminar".`);
-    return;
+    this.resourceTypeService.deleteResourceType(rt.idResourceType).subscribe({
+      next: () => this.loadResourceTypes(),
+      error: () => {},
+    });
   }
-  if (!confirm(`¿Eliminar la categoría "${cat.nombre}"?`)) return;
-  this.categorias = this.categorias.filter(c => c.id !== cat.id);
-}
 
-// Reasignar todos los tipos a otra categoría y eliminar
-reasignarYEliminar(cat: Categoria, nuevoCatId: number | null) {
-  if (!nuevoCatId || nuevoCatId === cat.id) return;
-  if (!confirm(`Reasignar todos los tipos de "${cat.nombre}" y eliminarla?`)) return;
+  // 🔹 Cancelar edición y limpiar formulario
+  resetForm(): void {
+    this.name = '';
+    this.isActive = true;
+    this.selectedCategoryId = null;
+    this.editing = false;
+    this.editingId = null;
+  }
 
-  this.tipos = this.tipos.map(t =>
-    t.categoriaId === cat.id ? { ...t, categoriaId: nuevoCatId } : t
-  );
-  this.categorias = this.categorias.filter(c => c.id !== cat.id);
-  delete this.reassignTarget[cat.id];
-}
-
-// Categorías destino (excluye la misma)
-categoriasDestino(catId: number): Categoria[] {
-  return this.categorias.filter(c => c.id !== catId);
-}
-
-volver(): void {
-  this.router.navigate(['/main/res-creation']);
-}
-
+  // 🔹 Navegar atrás
+  volver(): void {
+    this.router.navigate(['/main/res-creation']);
+  }
 }

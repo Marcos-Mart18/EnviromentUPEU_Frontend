@@ -1,122 +1,148 @@
 <div class="mx-auto max-w-5xl px-6 py-8">
-    <!-- Botón Volver -->
-    <button 
-      (click)="volver()"
-      class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-      Volver a opciones
-    </button>
+  <!-- Botón volver -->
+  <button (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Volver a opciones
+  </button>
 
-    <h1 class="text-2xl font-bold text-slate-800">Gestionar Recursos</h1>
-  
-    <!-- Alta -->
-    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 class="mb-4 text-base font-semibold text-slate-800">Añadir Nuevo Recurso</h2>
-  
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="md:col-span-2">
-          <label class="mb-1 block text-sm font-medium text-slate-700">Nombre del Recurso</label>
-          <input [(ngModel)]="nombre" type="text" placeholder="Introduce el nombre del recurso"
-                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"/>
-        </div>
-  
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Ambiente</label>
-          <select [(ngModel)]="ambienteId"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
-            <option [ngValue]="null">Selecciona</option>
-            <option *ngFor="let a of ambientes" [ngValue]="a.id">{{ a.nombre }}</option>
-          </select>
-        </div>
-  
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Tipo</label>
-          <select [(ngModel)]="tipoId"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
-            <option [ngValue]="null">Selecciona</option>
-            <option *ngFor="let t of tipos" [ngValue]="t.id">{{ t.nombre }}</option>
-          </select>
-        </div>
-  
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Estado</label>
-          <select [(ngModel)]="estadoId"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
-            <option [ngValue]="null">Selecciona</option>
-            <option *ngFor="let e of estados" [ngValue]="e.id">{{ e.nombre }}</option>
-          </select>
-        </div>
-  
-        <div class="flex items-end">
-          <button (click)="crear()"
-                  class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px"
-                  [style.background]="brand"
-                  [disabled]="!tipoId || !estadoId"
-                  [class.opacity-50]="!tipoId || !estadoId">
-            Añadir Recurso
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Recursos (Resources)</h1>
+
+  <!-- Crear nuevo recurso -->
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Crear Recurso</h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="space-y-3">
+        <input type="text" [(ngModel)]="code" placeholder="Código del recurso"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <input type="number" [(ngModel)]="stock" placeholder="Stock disponible"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <input type="text" [(ngModel)]="resourcePhotoUrl" placeholder="URL de la foto del recurso (opcional)"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <textarea [(ngModel)]="observation" placeholder="Observaciones (opcional)"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm h-20 resize-none"></textarea>
+      </div>
+
+      <div class="space-y-3">
+        <select [(ngModel)]="idResourceType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">Seleccionar tipo de recurso</option>
+          <option *ngFor="let rt of resourceTypes" [ngValue]="rt.idResourceType">
+            {{ rt.name }}
+          </option>
+        </select>
+
+        <select [(ngModel)]="idState" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">Seleccionar estado</option>
+          <option *ngFor="let s of states" [ngValue]="s.idState">
+            {{ s.name }}
+          </option>
+        </select>
+
+        <button (click)="create()" class="w-full rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+          style="background: #bfc621">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de recursos existentes -->
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Listado de Recursos</h2>
+      <button (click)="showResourcesList = !showResourcesList" class="text-sm text-slate-600">
+        {{ showResourcesList ? "Ocultar" : "Mostrar" }} lista
+      </button>
+    </div>
+
+    <div *ngIf="showResourcesList" class="mt-4">
+      <ul class="divide-y divide-slate-100">
+        <li *ngFor="let r of resources" class="py-3 flex flex-col sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div class="font-medium">Código: {{ r.code }}</div>
+            <div class="text-xs text-slate-500">ID: {{ r.idResource }}</div>
+            <div class="text-sm text-slate-600 mt-1">
+              Stock: <span class="font-medium">{{ r.stock ?? 0 }}</span>
+            </div>
+            <div class="text-sm text-slate-600">
+              Tipo: {{ r.resourceType?.name ?? '—' }}
+            </div>
+            <div class="text-sm text-slate-600">
+              Estado: {{ r.state?.name ?? '—' }}
+            </div>
+            <div *ngIf="r.observation" class="text-xs text-slate-500 italic mt-1">
+              {{ r.observation }}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mt-3 sm:mt-0">
+            <button (click)="edit(r)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+              </svg>
+            </button>
+            <button (click)="remove(r)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+              </svg>
+            </button>
+          </div>
+        </li>
+
+        <li *ngIf="resources.length === 0" class="py-3 text-sm text-slate-500">
+          No hay recursos registrados.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Sección de edición -->
+  <section *ngIf="editingId != null" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Editar Recurso</h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="space-y-3">
+        <input type="text" [(ngModel)]="editingCode" placeholder="Código"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <input type="number" [(ngModel)]="editingStock" placeholder="Stock"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <input type="text" [(ngModel)]="editingPhotoUrl" placeholder="URL de la foto"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <textarea [(ngModel)]="editingObservation" placeholder="Observaciones"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm h-20 resize-none"></textarea>
+      </div>
+
+      <div class="space-y-3">
+        <select [(ngModel)]="editingIdResourceType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">Seleccionar tipo de recurso</option>
+          <option *ngFor="let rt of resourceTypes" [ngValue]="rt.idResourceType">
+            {{ rt.name }}
+          </option>
+        </select>
+
+        <select [(ngModel)]="editingIdState" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">Seleccionar estado</option>
+          <option *ngFor="let s of states" [ngValue]="s.idState">
+            {{ s.name }}
+          </option>
+        </select>
+
+        <div class="flex gap-3">
+          <button (click)="save()" class="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+            style="background: #60a5fa">
+            Guardar cambios
           </button>
-          <span class="ml-3 text-xs text-slate-500" *ngIf="!tipoId || !estadoId">
-            Requiere seleccionar <b>Tipo</b> y <b>Estado</b>.
-          </span>
+          <button (click)="cancel()"
+            class="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-slate-900 bg-slate-200 hover:bg-slate-300">
+            Cancelar
+          </button>
         </div>
       </div>
-    </section>
-  
-    <!-- Lista -->
-    <section class="mt-6">
-      <h2 class="mb-3 text-base font-semibold text-slate-800">Recursos Existentes</h2>
-      <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-        <table class="w-full table-auto text-left">
-          <thead class="bg-slate-50">
-            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <th class="px-4 py-3">Nombre del Recurso</th>
-              <th class="px-4 py-3">Ambiente</th>
-              <th class="px-4 py-3">Estado</th>
-              <th class="px-4 py-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let r of recursos" class="border-t border-slate-100 text-sm text-slate-700">
-              <td class="px-4 py-4 font-medium">{{ r.nombre }}</td>
-              <td class="px-4 py-4">
-                <a class="text-[13px] font-medium text-sky-700 hover:underline">{{ getAmbiente(r.ambienteId) }}</a>
-              </td>
-              <td class="px-4 py-4">
-                <span class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
-                      [ngClass]="badgeClasses(getEstado(r.estadoId))">
-                  <span class="inline-block h-2 w-2 rounded-full"
-                    [style.background]="getEstado(r.estadoId)==='Disponible'? brand : (getEstado(r.estadoId)==='En uso'?'#64748B':'#F59E0B')"></span>
-                  {{ getEstado(r.estadoId) }}
-                </span>
-              </td>
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <button (click)="editar(r)" class="text-sm font-semibold text-emerald-700 hover:underline">Editar</button>
-                  <span class="text-slate-300">|</span>
-                  <button (click)="eliminar(r)" class="text-sm font-semibold text-red-600 hover:underline">Eliminar</button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="recursos.length === 0">
-              <td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">Sin recursos.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  
-    <!-- KPIs -->
-    <section class="mt-6 grid gap-6 md:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <p class="text-sm font-medium text-slate-600">Disponibilidad</p>
-        <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ porcentajeDisp }}%</p>
-      </div>
-      <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <p class="text-sm font-medium text-slate-600">Uso</p>
-        <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ porcentajeUso }}%</p>
-      </div>
-    </section>
-  </div>
-  
+    </div>
+  </section>
+</div>

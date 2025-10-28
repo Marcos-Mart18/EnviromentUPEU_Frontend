@@ -1,53 +1,137 @@
-<div class="mx-auto max-w-3xl px-6 py-8">
-    <!-- Botón Volver -->
-    <button 
-      (click)="volver()"
-      class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-      Volver a opciones
-    </button>
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <!-- Botón volverakjsdhkajshdkajshdkjashdkhasjdhaksjdhajskhdkjashdkahsdjahjkdhasjdaskdhasjkd -->
+  <button (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Volver a opciones
+  </button>
 
-    <h1 class="text-2xl font-bold text-slate-800">Estados de Recurso</h1>
-  
-    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
-      <h2 class="mb-4 text-base font-semibold text-slate-800">Crear Estado</h2>
-      <div class="flex gap-3">
-        <input [(ngModel)]="nombre" class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200" placeholder="p. ej., Disponible" />
-        <button (click)="crear()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" [style.background]="brand">Añadir</button>
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Estados (States)</h1>
+
+  <!-- Crear o editar estado -->
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">
+      {{ editing ? "Editar Estado" : "Crear Estado" }}
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-3">
+        <input type="text" [(ngModel)]="name" placeholder="Nombre del estado (ej. Disponible, En reparación)"
+          class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+
+        <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+          <input type="checkbox" [(ngModel)]="isActive" class="rounded border-slate-300" />
+          Activo
+        </label>
+
+        <div class="flex gap-3 mt-2">
+          <button (click)="createOrUpdate()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+            style="background: #bfc621">
+            {{ editing ? "Actualizar" : "Guardar" }}
+          </button>
+          <button *ngIf="editing" (click)="resetForm()"
+            class="rounded-lg px-4 py-2 text-sm font-semibold border border-slate-300 text-slate-700">
+            Cancelar
+          </button>
+        </div>
       </div>
-    </section>
-  
-    <section class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-      <table class="w-full table-auto text-left">
-        <thead class="bg-slate-50">
-          <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            <th class="px-4 py-3">Nombre</th>
-            <th class="px-4 py-3">Estado</th>
-            <th class="px-4 py-3">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let e of estados" class="border-t border-slate-100 text-sm text-slate-700">
-            <td class="px-4 py-4 font-medium">{{ e.nombre }}</td>
-            <td class="px-4 py-4">
-              <span class="rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
-                    [class.bg-lime-100]="e.activo" [class.text-lime-700]="e.activo" [class.ring-lime-200]="e.activo"
-                    [class.bg-slate-200]="!e.activo" [class.text-slate-700]="!e.activo" [class.ring-slate-300]="!e.activo">
-                {{ e.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td class="px-4 py-4">
-              <button (click)="toggle(e)" class="text-sm font-semibold text-emerald-700 hover:underline">
-                {{ e.activo ? 'Desactivar' : 'Activar' }}
-              </button>
-              <span class="mx-2 text-slate-300">|</span>
-              <button (click)="eliminar(e)" class="text-sm font-semibold text-red-600 hover:underline">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+
+      <div class="text-sm text-slate-500 md:pl-4">
+        <p>
+          Los estados permiten definir el estado actual de los recursos, por
+          ejemplo:
+          <strong>Disponible</strong>, <strong>En reparación</strong>,
+          <strong>Fuera de servicio</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mensaje de eliminación exitosa -->
+  <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
+    <div class="toast rounded-md px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
+      [ngClass]="toastSuccess ? 'bg-green-500' : 'bg-red-500'">
+      <span>{{ toastMessage }}</span>
+    </div>
   </div>
-  
+
+  <!-- Listado de estados -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Lista de Estados</h2>
+      <button (click)="showStatesList = !showStatesList" class="text-sm text-slate-600">
+        {{ showStatesList ? "Ocultar" : "Mostrar" }} lista
+      </button>
+    </div>
+
+    <div *ngIf="showStatesList" class="mt-4">
+      <div class="relative overflow-x-auto">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" class="px-6 py-3">#</th>
+              <th scope="col" class="px-6 py-3">Nombre</th>
+              <th scope="col" class="px-6 py-3">Estado</th>
+              <th scope="col" class="px-6 py-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of states; let i = index"
+              class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+              <td class="px-6 py-4">{{ i + 1 }}</td>
+              <td class="px-6 py-4">{{ s.name }}</td>
+              <td class="px-6 py-4">
+                <div class="inline-block rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="
+                  s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
+                  {{ s.isActive ? "Activo" : "Inactivo" }}
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button (click)="edit(s)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button (click)="confirmRemove(s, $event)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="states.length === 0">
+              <td colspan="4" class="px-6 py-6 text-center text-sm text-slate-500">No hay estados registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confirmación de eliminación -->
+  <div *ngIf="pendingDeleteId && popupStyle" [ngStyle]="popupStyle"
+    class="confirm-popup z-50 w-56 rounded-md border border-slate-200 bg-white p-3 shadow-lg">
+    <div class="text-sm font-semibold text-slate-800">
+      ¿Seguro que quieres eliminar?
+    </div>
+    <div class="mt-1 text-sm text-slate-600">
+      Se eliminará: <strong>{{ pendingDeleteName }}</strong>
+    </div>
+    <div class="mt-3 flex gap-2 justify-end">
+      <button (click)="performDeleteConfirmed()" class="rounded px-3 py-1 text-sm font-semibold text-white"
+        style="background: #ef4444">
+        Eliminar
+      </button>
+      <button (click)="cancelRemove()"
+        class="rounded px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
