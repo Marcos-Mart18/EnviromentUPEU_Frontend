@@ -20,6 +20,7 @@ import { ResourcesStateComponent } from './features/resource-screen/resource-sta
 import { ResourceScreenComponent } from './features/resource-screen/resource-screen.component';
 import { ResourceComponent } from './features/resource-screen/resource/resource.component';
 import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
+import { ResourceCategoryComponent } from './features/resource-screen/resource-category/resource-category.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -71,6 +72,7 @@ export const routes: Routes = [
                 { path: 'resources', component: ResourceComponent },
                 { path: 'states', component: ResourcesStateComponent },
                 { path: 'types', component: ResourceTypeComponent },
+                { path: 'categories', component: ResourceCategoryComponent },
             ]
         },
         ],

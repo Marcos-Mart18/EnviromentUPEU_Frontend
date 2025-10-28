@@ -1,0 +1,69 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <button (click)="volver()" class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Volver a opciones
+  </button>
+
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Categorías de Recursos</h1>
+
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">{{ editing ? 'Editar Categoría' : 'Crear Categoría' }}</h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <input type="text" [(ngModel)]="name" placeholder="Nombre de la categoría"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 mt-4">
+      <label class="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" [(ngModel)]="isActive" class="rounded border-slate-300 text-slate-600" />
+        Activo
+      </label>
+
+      <button (click)="createOrUpdate()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">
+        {{ editing ? 'Actualizar' : 'Guardar' }}
+      </button>
+
+      <button *ngIf="editing" (click)="resetForm()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #fca5a5">
+        Cancelar
+      </button>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Lista de Categorías</h2>
+      <button (click)="showCategoriesList = !showCategoriesList" class="text-sm text-slate-600">
+        {{ showCategoriesList ? 'Ocultar' : 'Mostrar' }} lista
+      </button>
+    </div>
+
+    <div *ngIf="showCategoriesList" class="mt-4">
+      <ul class="divide-y divide-slate-100">
+        <li *ngFor="let c of categories" class="py-3 flex items-start justify-between">
+          <div>
+            <div class="font-medium">{{ c.name }}</div>
+            <div class="text-xs text-slate-500">Estado: {{ c.isActive ? 'Activo' : 'Inactivo' }}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button (click)="edit(c)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+              </svg>
+            </button>
+            <button (click)="remove(c)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+              </svg>
+            </button>
+          </div>
+        </li>
+        <li *ngIf="categories.length === 0" class="py-3 text-sm text-slate-500">No hay categorías registradas.</li>
+      </ul>
+    </div>
+  </section>
+</div>

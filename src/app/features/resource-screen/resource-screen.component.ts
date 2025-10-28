@@ -35,6 +35,13 @@ export class ResourceScreenComponent implements OnInit {
       icon: 'M12 3v18M3 12h18',
       cta: 'Gestionar Estados',
     },
+    {
+      title: 'Categorías',
+      desc: 'Gestiona las categorías de recursos.',
+      route: 'categories',
+      icon: 'M4 6h16M4 12h16M4 18h16',
+      cta: 'Gestionar Categorías',
+    },
   ];
   
   constructor(private router: Router, private route: ActivatedRoute) {}
