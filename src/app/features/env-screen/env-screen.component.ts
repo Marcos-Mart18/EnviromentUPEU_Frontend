@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, ActivatedRoute, NavigationEnd } from '@angular/router';
+import {
+  Router,
+  RouterModule,
+  ActivatedRoute,
+  NavigationEnd,
+} from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -20,22 +25,18 @@ export class EnvScreenComponent implements OnInit {
     {
       key: 'ambiente',
       title: 'Crear Ambiente',
-      desc:
-        'Registra un nuevo ambiente con su tipo asociado y gestiona sus recursos y disponibilidad.',
+      desc: 'Registra un nuevo ambiente con su tipo asociado y gestiona sus recursos y disponibilidad.',
       route: 'environment', // ruta relativa
       cta: 'Ir a Ambientes',
-      iconPath:
-        'M4 12l8-8 8 8M6 10v8a2 2 0 002 2h8a2 2 0 002-2v-8',
+      iconPath: 'M4 12l8-8 8 8M6 10v8a2 2 0 002 2h8a2 2 0 002-2v-8',
     },
     {
       key: 'tipo',
       title: 'Crear Tipo de Ambiente',
-      desc:
-        'Define categorías como Sala de Reuniones, Laboratorio o Almacenamiento para usarlas luego.',
+      desc: 'Define categorías como Sala de Reuniones, Laboratorio o Almacenamiento para usarlas luego.',
       route: 'type-environment', // ruta relativa
       cta: 'Ir a Tipos',
-      iconPath:
-        'M4 6h16M4 12h16M4 18h10', // icono "lista"
+      iconPath: 'M4 6h16M4 12h16M4 18h10', // icono "lista"
     },
     {
       key: 'building',
@@ -43,15 +44,7 @@ export class EnvScreenComponent implements OnInit {
       desc: 'Gestiona los pabellones (buildings).',
       route: 'buildings',
       cta: 'Ir a Pabellones',
-      iconPath: 'M4 6h16M4 12h16M4 18h10'
-    },
-    {
-      key: 'floor',
-      title: 'Pisos',
-      desc: 'Gestiona los pisos por pabellón.',
-      route: 'floors',
-      cta: 'Ir a Pisos',
-      iconPath: 'M4 6h16M4 12h16M4 18h10'
+      iconPath: 'M4 6h16M4 12h16M4 18h10',
     },
     {
       key: 'state',
@@ -59,7 +52,7 @@ export class EnvScreenComponent implements OnInit {
       desc: 'Gestiona los estados de ambientes.',
       route: 'states',
       cta: 'Ir a Estados',
-      iconPath: 'M4 6h16M4 12h16M4 18h10'
+      iconPath: 'M4 6h16M4 12h16M4 18h10',
     },
   ];
 
@@ -68,10 +61,10 @@ export class EnvScreenComponent implements OnInit {
   ngOnInit() {
     // Detectar si hay rutas hijas activas
     this.checkChildRoute();
-    
+
     // Escuchar cambios de navegación
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.checkChildRoute();
       });

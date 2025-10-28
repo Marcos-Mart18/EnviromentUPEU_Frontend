@@ -124,7 +124,7 @@ export class BuildingComponent implements OnInit {
   }
 
   // Edición inline de pisos
-  editFloor(f: Floor): void {
+  editFloors(f: Floor): void {
     this.editingFloorId = f.id_floor ?? null;
     this.editingFloorNumber = f.floor_number;
   }
@@ -232,6 +232,24 @@ export class BuildingComponent implements OnInit {
       .subscribe({
         next: () => {
           b.is_active = newStatus;
+          // No mostrar toast para acciones de edición; solo mostrar notificaciones en eliminación según petición
+        },
+        error: () => {},
+      });
+  }
+
+  toggleFloorActive(f: Floor): void {
+    if (!f || f.id_floor == null) return;
+    const newStatus = f.is_active === 'A' ? 'I' : 'A';
+    this.floorService
+      .updateFloor(f.id_floor, {
+        floor_number: f.floor_number,
+        id_building: f.building.id_building ?? 0,
+        is_active: newStatus,
+      })
+      .subscribe({
+        next: () => {
+          f.is_active = newStatus;
           // No mostrar toast para acciones de edición; solo mostrar notificaciones en eliminación según petición
         },
         error: () => {},
