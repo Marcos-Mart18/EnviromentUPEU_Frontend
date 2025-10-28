@@ -1,4 +1,5 @@
 <div class="mx-auto max-w-4xl px-6 py-8">
+  <!-- Volver a opciones -->
   <button
     (click)="volver()"
     class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
@@ -14,11 +15,66 @@
     Volver a opciones
   </button>
 
-  <h1 class="text-2xl font-bold text-slate-800 mb-4">Pabellones (Buildings)</h1>
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Pabellones</h1>
+
+  <!-- Toast top-right -->
+  <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
+    <div
+      class="toast rounded-md bg-emerald-600 px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
+    >
+      <span>{{ toastMessage }}</span>
+      <button
+        *ngIf="toastHasUndo && lastDeleted"
+        (click)="undoDelete()"
+        class="underline text-sm"
+      >
+        Deshacer
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup de confirmación flotante para eliminación (pabellón o piso) -->
+  <div
+    *ngIf="(pendingDeleteId || pendingDeleteFloorId) && popupStyle"
+    [ngStyle]="popupStyle"
+    class="confirm-popup z-50 w-56 rounded-md border border-slate-200 bg-white p-3 shadow-lg"
+  >
+    <div class="text-sm font-semibold text-slate-800">
+      ¿Seguro que quieres eliminar?
+    </div>
+    <div class="mt-1 text-sm text-slate-600">
+      Se eliminará:
+      <strong>{{
+        pendingDeleteId ? pendingDeleteName : pendingDeleteFloorName
+      }}</strong>
+    </div>
+    <div class="mt-3 flex gap-2 justify-end">
+      <button
+        (click)="
+          pendingDeleteId
+            ? performDeleteConfirmed()
+            : performDeleteFloorConfirmed()
+        "
+        class="rounded px-3 py-1 text-sm font-semibold text-white"
+        style="background: #ef4444"
+      >
+        Eliminar
+      </button>
+      <button
+        (click)="cancelRemove()"
+        class="rounded px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Crear Pabellón y Piso para un Pabellón -->
   <section
     class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
   >
     <div class="grid md:grid-cols-2 gap-4">
+      <!-- Crear Pabellón -->
       <div>
         <h2 class="text-base font-semibold mb-3">Crear Pabellón</h2>
         <div class="flex gap-3">
@@ -36,17 +92,16 @@
             Guardar
           </button>
         </div>
-        <!-- espacio reservado: aquí sólo Crear Pabellón (el selector global será en otra caja) -->
       </div>
 
+      <!-- Crear Piso para un Pabellón -->
       <div>
         <h2 class="text-base font-semibold mb-3">
           Crear Piso para un Pabellón
         </h2>
         <div class="flex gap-3">
           <select
-            [(ngModel)]="selectedBuildingIdForFloors"
-            (ngModelChange)="loadFloorsForBuilding(selectedBuildingIdForFloors)"
+            [(ngModel)]="selectedBuildingIdForCreateFloor"
             class="rounded-lg border border-slate-300 px-3 py-2 text-sm w-2/3"
           >
             <option [ngValue]="null">Seleccionar pabellón</option>
@@ -75,122 +130,315 @@
     </div>
   </section>
 
-  <!-- Sección separada: listado y selector de pabellones con CRUD -->
+  <!-- Listado de Pabellones -->
   <section
     class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
   >
-    <div class="flex items-center justify-between">
-      <h2 class="text-base font-semibold">Pabellones</h2>
-      <button
-        (click)="showBuildingsList = !showBuildingsList"
-        class="text-sm text-slate-600"
-      >
-        {{ showBuildingsList ? "Ocultar" : "Mostrar" }} lista
-      </button>
-    </div>
-
-    <div *ngIf="showBuildingsList" class="mt-4">
-      <ul class="divide-y divide-slate-100">
-        <li
-          *ngFor="let b of buildings"
-          class="py-3 flex items-start justify-between"
-        >
-          <div>
-            <div class="font-medium">{{ b.name }}</div>
-            <div class="text-xs text-slate-500">ID: {{ b.id_building }}</div>
-          </div>
-          <div class="flex items-center gap-3">
-            <button
-              (click)="edit(b)"
-              title="Editar"
-              class="text-slate-600 hover:text-emerald-700"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+    <h2 class="text-base font-semibold mb-3">Pabellones</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let b of buildings; let i = index"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3">
+              <ng-container
+                *ngIf="editingId !== b.id_building; else editBuilding"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
+                {{ b.name }}
+              </ng-container>
+              <ng-template #editBuilding>
+                <input
+                  [(ngModel)]="editingName"
+                  class="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
                 />
-              </svg>
-            </button>
-            <button
-              (click)="remove(b)"
-              title="Eliminar"
-              class="text-slate-600 hover:text-red-600"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <button
+                (click)="toggleBuildingActive(b)"
+                class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
+                [ngClass]="estadoChipClasses(b.is_active)"
+                title="Alternar estado"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12"
-                />
-              </svg>
-            </button>
-          </div>
-        </li>
-      </ul>
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [class.bg-green-500]="b.is_active === 'A'"
+                  [class.bg-gray-500]="b.is_active !== 'A'"
+                ></span>
+                {{ b.is_active === "A" ? "Activo" : "Inactivo" }}
+              </button>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <ng-container
+                  *ngIf="editingId !== b.id_building; else editingActions"
+                >
+                  <button
+                    (click)="edit(b)"
+                    title="Editar"
+                    class="text-slate-600 hover:text-emerald-700"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="confirmRemove(b, $event)"
+                    title="Eliminar"
+                    class="text-slate-600 hover:text-red-600"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12"
+                      />
+                    </svg>
+                  </button>
+                </ng-container>
+                <ng-template #editingActions>
+                  <button
+                    (click)="save()"
+                    title="Guardar"
+                    class="text-green-600 hover:text-green-800"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="cancel()"
+                    title="Cancelar"
+                    class="text-slate-600 hover:text-gray-800"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="buildings.length === 0">
+            <td
+              colspan="4"
+              class="px-4 py-6 text-center text-sm text-slate-500"
+            >
+              Sin registros
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
+  <!-- Pisos por Pabellón -->
   <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <h2 class="text-base font-semibold mb-3">Pisos por pabellones</h2>
     <div class="gap-4">
-      <div>
-        <!-- selector secundario encima de la lista de pisos -->
-        <div class="mb-2">
-          <label class="text-sm text-slate-600">Mostrar pisos de:</label>
-          <select
-            [(ngModel)]="selectedBuildingIdForFloors"
-            (ngModelChange)="loadFloorsForBuilding(selectedBuildingIdForFloors)"
-            class="w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm mt-1 ml-2"
-          >
-            <option [ngValue]="null">Seleccionar pabellón</option>
-            <option *ngFor="let b of buildings" [ngValue]="b.id_building">
-              {{ b.name }}
-            </option>
-          </select>
-        </div>
-        <div
-          *ngIf="selectedBuildingIdForFloors == null"
-          class="text-sm text-slate-500"
+      <!-- Selector de pabellón para mostrar pisos -->
+      <div class="mb-2">
+        <label class="text-sm text-slate-600">Mostrar pisos de:</label>
+        <select
+          [(ngModel)]="selectedBuildingIdForFloors"
+          (ngModelChange)="loadFloorsForBuilding(selectedBuildingIdForFloors)"
+          class="w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm mt-1 ml-2"
         >
-          Selecciona un pabellón arriba para ver sus pisos.
-        </div>
-        <ul
-          *ngIf="selectedBuildingIdForFloors != null"
-          class="divide-y divide-slate-100"
-        >
-          <li
-            *ngFor="let f of floorsForSelected"
-            class="py-3 flex items-center justify-between"
-          >
-            <div>
-              <div class="font-medium">Piso {{ f.floor_number }}</div>
-              <div class="text-xs text-slate-500">
-                ID Piso: {{ f.id_floor }}
-              </div>
-            </div>
-            <div class="text-sm text-slate-500">{{ f.is_active }}</div>
-          </li>
-          <li
-            *ngIf="floorsForSelected.length === 0"
-            class="py-3 text-sm text-slate-500"
-          >
-            No hay pisos para este pabellón.
-          </li>
-        </ul>
+          <option [ngValue]="null">Seleccionar pabellón</option>
+          <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+            {{ b.name }}
+          </option>
+        </select>
+      </div>
+      <div
+        *ngIf="selectedBuildingIdForFloors == null"
+        class="text-sm text-slate-500"
+      >
+        Selecciona un pabellón arriba para ver sus pisos.
+      </div>
+      <div *ngIf="selectedBuildingIdForFloors != null" class="overflow-x-auto">
+        <!-- Cabecera de tabla para pisos -->
+        <table>
+          <thead class="bg-slate-50">
+            <tr
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3">Piso</th>
+              <th class="px-4 py-3">Estado</th>
+              <th class="px-4 py-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let f of floorsForSelected; let i = index"
+              class="border-t border-slate-100 text-sm text-slate-700"
+            >
+              <td class="px-4 py-3">{{ i + 1 }}</td>
+              <td class="px-4 py-3">
+                <ng-container *ngIf="editingId !== f.id_floor; else editFloor">
+                  {{ "Piso " + f.floor_number }}
+                </ng-container>
+                <ng-template #editFloor>
+                  <input
+                    [(ngModel)]="editingName"
+                    class="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                  />
+                </ng-template>
+              </td>
+              <td class="px-4 py-3">
+                <button
+                  (click)="toggleFloorActive(f)"
+                  class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
+                  [ngClass]="estadoChipClasses(f.is_active)"
+                  title="Alternar estado"
+                >
+                  <span
+                    class="inline-block h-2 w-2 rounded-full"
+                    [class.bg-green-500]="f.is_active === 'A'"
+                    [class.bg-gray-500]="f.is_active !== 'A'"
+                  ></span>
+                  {{ f.is_active === "A" ? "Activo" : "Inactivo" }}
+                </button>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <ng-container
+                    *ngIf="editingId !== f.id_floor; else editingActions"
+                  >
+                    <button
+                      (click)="editFloors(f)"
+                      title="Editar"
+                      class="text-slate-600 hover:text-emerald-700"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      (click)="confirmRemoveFloor(f, $event)"
+                      title="Eliminar"
+                      class="text-slate-600 hover:text-red-600"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12"
+                        />
+                      </svg>
+                    </button>
+                  </ng-container>
+                  <ng-template #editingActions>
+                    <button
+                      (click)="save()"
+                      title="Guardar"
+                      class="text-green-600 hover:text-green-800"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      (click)="cancel()"
+                      title="Cancelar"
+                      class="text-slate-600 hover:text-gray-800"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>

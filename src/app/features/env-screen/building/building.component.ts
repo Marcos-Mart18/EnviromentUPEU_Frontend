@@ -23,10 +23,29 @@ export class BuildingComponent implements OnInit {
   name = '';
   editingId?: number | null = null;
   editingName = '';
+  editingIsActive = '';
+  // para confirmar eliminación (flotante)
+  pendingDeleteId?: number | null = null;
+  pendingDeleteName = '';
+  lastDeleted?: Building | null = null;
+  popupStyle: { [k: string]: string } | null = null;
+  // toast
+  showToast = false;
+  toastMessage = '';
+  private toastTimer: any = null;
+  toastHasUndo = false;
   // Para gestionar pisos en esta pantalla
   selectedBuildingIdForFloors?: number | null = null;
+  // Selección separada para el formulario "Crear Piso" (no debe afectar al selector de ver pisos)
+  selectedBuildingIdForCreateFloor?: number | null = null;
   floorsForSelected: Floor[] = [];
   newFloorNumber: number | null = null;
+  // Edición inline de pisos
+  editingFloorId?: number | null = null;
+  editingFloorNumber: number | null = null;
+  // confirmación eliminación de piso
+  pendingDeleteFloorId?: number | null = null;
+  pendingDeleteFloorName = '';
   // selector para ver pabellón desde abajo
   viewBuildingId?: number | null = null;
   // toggle para mostrar/ocultar lista de buildings
@@ -104,6 +123,47 @@ export class BuildingComponent implements OnInit {
     this.loadFloorsForBuilding(id ?? null);
   }
 
+  // Edición inline de pisos
+  editFloors(f: Floor): void {
+    this.editingFloorId = f.id_floor ?? null;
+    this.editingFloorNumber = f.floor_number;
+  }
+
+  cancelFloorEdit(): void {
+    this.editingFloorId = null;
+    this.editingFloorNumber = null;
+  }
+
+  saveFloor(): void {
+    if (!this.editingFloorId) return;
+    const n = Number(this.editingFloorNumber ?? 0);
+    if (!n && n !== 0) return;
+    // buscar el piso actual para obtener id_building e is_active
+    const current = this.floorsForSelected.find(
+      (fl) => fl.id_floor === this.editingFloorId
+    );
+    const id_building = current
+      ? current.building.id_building
+      : this.selectedBuildingIdForFloors ??
+        this.selectedBuildingIdForCreateFloor ??
+        0;
+    const is_active = current ? current.is_active : 'A';
+    this.floorService
+      .updateFloor(this.editingFloorId, {
+        floor_number: n,
+        id_building: Number(id_building),
+        is_active,
+      })
+      .subscribe({
+        next: () => {
+          this.cancelFloorEdit();
+          // recargar
+          this.loadFloorsForBuilding(this.selectedBuildingIdForFloors ?? null);
+        },
+        error: () => {},
+      });
+  }
+
   get viewBuildingName(): string {
     if (this.viewBuildingId == null) return '';
     return (
@@ -113,19 +173,28 @@ export class BuildingComponent implements OnInit {
   }
 
   createFloorForBuilding(): void {
-    if (this.newFloorNumber == null || this.selectedBuildingIdForFloors == null)
+    if (
+      this.newFloorNumber == null ||
+      this.selectedBuildingIdForCreateFloor == null
+    )
       return;
     this.floorService
       .createFloor({
         floor_number: Number(this.newFloorNumber),
-        id_building: Number(this.selectedBuildingIdForFloors),
+        id_building: Number(this.selectedBuildingIdForCreateFloor),
         is_active: 'A',
       })
       .subscribe({
         next: () => {
           this.newFloorNumber = null;
-          // recargar la lista de pisos del building seleccionado
-          this.loadFloorsForBuilding(this.selectedBuildingIdForFloors);
+          // Si el usuario está viendo la lista de pisos del pabellón creado, recargarla
+          if (
+            this.selectedBuildingIdForFloors ===
+            this.selectedBuildingIdForCreateFloor
+          ) {
+            this.loadFloorsForBuilding(this.selectedBuildingIdForFloors);
+          }
+          // no mostramos toast por creación aquí; la UX principal usará la recarga visible
         },
         error: () => {},
       });
@@ -146,7 +215,7 @@ export class BuildingComponent implements OnInit {
   edit(b: Building): void {
     this.editingId = b.id_building;
     this.editingName = b.name;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.editingIsActive = b.is_active;
   }
 
   cancel(): void {
@@ -154,27 +223,213 @@ export class BuildingComponent implements OnInit {
     this.editingName = '';
   }
 
-  save(): void {
-    if (this.editingId == null) return;
-    const n = this.editingName.trim();
-    if (!n) return;
+  /** Alterna is_active para un pabellón y guarda en backend */
+  toggleBuildingActive(b: Building): void {
+    if (!b || b.id_building == null) return;
+    const newStatus = b.is_active === 'A' ? 'I' : 'A';
     this.env
-      .updateBuilding(this.editingId, { name: n, is_active: 'A' })
+      .updateBuilding(b.id_building, { name: b.name, is_active: newStatus })
       .subscribe({
         next: () => {
-          this.cancel();
-          this.load();
+          b.is_active = newStatus;
+          // No mostrar toast para acciones de edición; solo mostrar notificaciones en eliminación según petición
         },
         error: () => {},
       });
   }
 
-  remove(b: Building): void {
-    const ok = confirm(`¿Eliminar "${b.name}"?`);
-    if (!ok) return;
-    this.env.deleteBuilding(b.id_building).subscribe({
-      next: () => this.load(),
+  toggleFloorActive(f: Floor): void {
+    if (!f || f.id_floor == null) return;
+    const newStatus = f.is_active === 'A' ? 'I' : 'A';
+    this.floorService
+      .updateFloor(f.id_floor, {
+        floor_number: f.floor_number,
+        id_building: f.building.id_building ?? 0,
+        is_active: newStatus,
+      })
+      .subscribe({
+        next: () => {
+          f.is_active = newStatus;
+          // No mostrar toast para acciones de edición; solo mostrar notificaciones en eliminación según petición
+        },
+        error: () => {},
+      });
+  }
+
+  estadoChipClasses(is_active: string): string {
+    return is_active === 'A'
+      ? 'bg-green-100 text-green-700'
+      : 'bg-gray-200 text-gray-700';
+  }
+
+  save(): void {
+    if (this.editingId == null) return;
+    const n = this.editingName.trim();
+    if (!n) return;
+    // preservar is_active actual si existe
+    const current = this.buildings.find(
+      (st) => st.id_building === this.editingId
+    );
+    const is_active = current ? current.is_active : this.editingIsActive || 'A';
+    this.env.updateBuilding(this.editingId, { name: n, is_active }).subscribe({
+      next: () => {
+        this.cancel();
+        this.load();
+      },
       error: () => {},
+    });
+  }
+
+  // confirmación flotante
+  confirmRemove(b: Building, ev?: MouseEvent): void {
+    this.pendingDeleteId = b.id_building ?? null;
+    this.pendingDeleteName = b.name;
+    this.lastDeleted = new Building(b.name, b.is_active, b.id_building);
+    try {
+      const btn = ev?.currentTarget as HTMLElement | undefined;
+      const rect = btn ? btn.getBoundingClientRect() : undefined;
+      const popupW = 280;
+      const popupH = 96;
+      let top: number;
+      let left: number;
+      if (rect) {
+        if (rect.top > popupH + 20) top = rect.top - popupH - 8;
+        else top = rect.bottom + 8;
+        left = rect.left + rect.width / 2 - popupW / 2;
+        const minLeft = 8;
+        const maxLeft = Math.max(8, window.innerWidth - popupW - 8);
+        if (left < minLeft) left = minLeft;
+        if (left > maxLeft) left = maxLeft;
+      } else {
+        top = Math.max(8, window.innerHeight / 2 - popupH / 2);
+        left = Math.max(8, window.innerWidth / 2 - popupW / 2);
+      }
+      this.popupStyle = {
+        position: 'fixed',
+        top: `${top}px`,
+        left: `${left}px`,
+      };
+    } catch (e) {
+      this.popupStyle = null;
+    }
+  }
+
+  performDeleteConfirmed(): void {
+    if (!this.pendingDeleteId) return;
+    const id = this.pendingDeleteId;
+    this.env.deleteBuilding(id).subscribe({
+      next: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.load();
+        this.showTransientToast('Eliminado correctamente', 5000, true);
+      },
+      error: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.showTransientToast('Error al eliminar', 3000, false);
+      },
+    });
+  }
+
+  // Confirmación para eliminar piso
+  confirmRemoveFloor(f: Floor, ev?: MouseEvent): void {
+    this.pendingDeleteFloorId = f.id_floor ?? null;
+    this.pendingDeleteFloorName = `Piso ${f.floor_number}`;
+    // calcular misma posición que para edificios
+    try {
+      const btn = ev?.currentTarget as HTMLElement | undefined;
+      const rect = btn ? btn.getBoundingClientRect() : undefined;
+      const popupW = 280;
+      const popupH = 96;
+      let top: number;
+      let left: number;
+      if (rect) {
+        if (rect.top > popupH + 20) top = rect.top - popupH - 8;
+        else top = rect.bottom + 8;
+        left = rect.left + rect.width / 2 - popupW / 2;
+        const minLeft = 8;
+        const maxLeft = Math.max(8, window.innerWidth - popupW - 8);
+        if (left < minLeft) left = minLeft;
+        if (left > maxLeft) left = maxLeft;
+      } else {
+        top = Math.max(8, window.innerHeight / 2 - popupH / 2);
+        left = Math.max(8, window.innerWidth / 2 - popupW / 2);
+      }
+      this.popupStyle = {
+        position: 'fixed',
+        top: `${top}px`,
+        left: `${left}px`,
+      };
+    } catch (e) {
+      this.popupStyle = null;
+    }
+  }
+
+  performDeleteFloorConfirmed(): void {
+    if (!this.pendingDeleteFloorId) return;
+    const id = this.pendingDeleteFloorId;
+    this.floorService.deleteFloor(id).subscribe({
+      next: () => {
+        this.pendingDeleteFloorId = null;
+        this.pendingDeleteFloorName = '';
+        this.popupStyle = null;
+        // recargar lista de pisos
+        this.loadFloorsForBuilding(this.selectedBuildingIdForFloors ?? null);
+        this.showTransientToast('Piso eliminado', 5000, true);
+      },
+      error: () => {
+        this.pendingDeleteFloorId = null;
+        this.pendingDeleteFloorName = '';
+        this.popupStyle = null;
+        this.showTransientToast('Error al eliminar piso', 3000, false);
+      },
+    });
+  }
+
+  cancelRemove(): void {
+    // limpia tanto pending de building como de floor
+    this.pendingDeleteId = null;
+    this.pendingDeleteName = '';
+    this.pendingDeleteFloorId = null;
+    this.pendingDeleteFloorName = '';
+    this.popupStyle = null;
+  }
+
+  private showTransientToast(
+    message: string,
+    ms = 3000,
+    undoable = false
+  ): void {
+    this.toastMessage = message;
+    this.showToast = true;
+    this.toastHasUndo = undoable;
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      this.showToast = false;
+      this.toastMessage = '';
+      this.toastHasUndo = false;
+      this.toastTimer = null;
+    }, ms);
+  }
+
+  undoDelete(): void {
+    if (!this.lastDeleted) return;
+    const payload = {
+      name: this.lastDeleted.name,
+      is_active: this.lastDeleted.is_active,
+    };
+    this.env.createBuilding(payload).subscribe({
+      next: () => {
+        this.load();
+        this.showTransientToast('Restaurado', 3000, false);
+        this.lastDeleted = null;
+      },
+      error: () => {
+        this.showTransientToast('Error al restaurar', 3000, false);
+      },
     });
   }
 
