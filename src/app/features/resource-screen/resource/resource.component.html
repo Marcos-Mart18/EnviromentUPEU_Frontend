@@ -20,7 +20,7 @@
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         <input type="number" [(ngModel)]="stock" placeholder="Stock disponible"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-        <input type="text" [(ngModel)]="resourcePhotoUrl" placeholder="URL de la foto del recurso (opcional)"
+        <input type="file" (change)="onCreateFileChange($event)" accept="image/*"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         <textarea [(ngModel)]="observation" placeholder="Observaciones (opcional)"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm h-20 resize-none"></textarea>
@@ -59,45 +59,77 @@
     </div>
 
     <div *ngIf="showResourcesList" class="mt-4">
-      <ul class="divide-y divide-slate-100">
-        <li *ngFor="let r of resources" class="py-3 flex flex-col sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div class="font-medium">Código: {{ r.code }}</div>
-            <div class="text-xs text-slate-500">ID: {{ r.idResource }}</div>
-            <div class="text-sm text-slate-600 mt-1">
-              Stock: <span class="font-medium">{{ r.stock ?? 0 }}</span>
-            </div>
-            <div class="text-sm text-slate-600">
-              Tipo: {{ r.resourceType?.name ?? '—' }}
-            </div>
-            <div class="text-sm text-slate-600">
-              Estado: {{ r.state?.name ?? '—' }}
-            </div>
-            <div *ngIf="r.observation" class="text-xs text-slate-500 italic mt-1">
-              {{ r.observation }}
-            </div>
+      <div *ngIf="resources.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let r of resources; let i = index" class="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 hover:shadow-md transition">
+          <div class="absolute top-2 left-2 h-6 w-6 rounded-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 text-xs font-bold flex items-center justify-center shadow">
+            {{ i + 1 }}
+          </div>
+          <div class="h-56 w-full">
+            <ng-container *ngIf="r.resourcePhotoUrl; else noImg">
+              <img class="mx-auto h-full w-full rounded-md object-cover" [src]="r.resourcePhotoUrl" alt="Foto del recurso" />
+            </ng-container>
+            <ng-template #noImg>
+              <div class="mx-auto flex h-full w-full items-center justify-center rounded-md bg-gray-100 text-gray-400 dark:bg-gray-700">
+                Sin imagen
+              </div>
+            </ng-template>
           </div>
 
-          <div class="flex items-center gap-3 mt-3 sm:mt-0">
-            <button (click)="edit(r)" title="Editar" class="text-slate-600 hover:text-emerald-700">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-              </svg>
-            </button>
-            <button (click)="remove(r)" title="Eliminar" class="text-slate-600 hover:text-red-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
-              </svg>
-            </button>
-          </div>
-        </li>
+          <div class="pt-6">
+            <div class="mb-4 flex items-center justify-between gap-4">
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                [ngClass]="
+                  ((r.state?.name || '').toLowerCase() === 'disponible')
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300'
+                    : (['en uso','ocupado','prestado'].includes((r.state?.name || '').toLowerCase()))
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300'
+                      : (['dañado','inactivo','baja'].includes((r.state?.name || '').toLowerCase()))
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                "
+              >
+                {{ r.state?.name ?? '—' }}
+              </span>
 
-        <li *ngIf="resources.length === 0" class="py-3 text-sm text-slate-500">
-          No hay recursos registrados.
-        </li>
-      </ul>
+              <div class="flex items-center justify-end gap-1">
+                <button type="button" (click)="edit(r)" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" title="Editar">
+                  <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                  </svg>
+                </button>
+                <button type="button" (click)="remove(r)" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" title="Eliminar">
+                  <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="text-lg font-semibold leading-tight text-gray-900 dark:text-white">{{ r.code }}</div>
+
+            <ul class="mt-2 flex flex-wrap items-center gap-4">
+              <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+                <span>Stock: <span class="font-medium">{{ r.stock ?? 0 }}</span></span>
+              </li>
+              <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v10H7z" />
+                </svg>
+                <span>Tipo: <span class="font-medium">{{ r.resourceType?.name ?? '—' }}</span></span>
+              </li>
+            </ul>
+
+            <p *ngIf="r.observation" class="mt-4 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{{ r.observation }}</p>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="resources.length === 0" class="py-3 text-sm text-slate-500">
+        No hay recursos registrados.
+      </div>
     </div>
   </section>
 
@@ -111,7 +143,11 @@
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         <input type="number" [(ngModel)]="editingStock" placeholder="Stock"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-        <input type="text" [(ngModel)]="editingPhotoUrl" placeholder="URL de la foto"
+        <div *ngIf="editingPhotoUrl" class="flex items-center gap-3">
+          <img [src]="editingPhotoUrl" alt="Foto actual" class="h-12 w-12 object-cover rounded" />
+          <span class="text-xs text-slate-500">Foto actual</span>
+        </div>
+        <input type="file" (change)="onEditFileChange($event)" accept="image/*"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         <textarea [(ngModel)]="editingObservation" placeholder="Observaciones"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm h-20 resize-none"></textarea>

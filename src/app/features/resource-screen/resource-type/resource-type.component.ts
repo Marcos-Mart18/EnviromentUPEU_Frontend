@@ -27,14 +27,14 @@ export class ResourceTypeComponent implements OnInit {
   // Campos de formulario
   name = '';
   isActive = true;
-  selectedCategoryId: number | null = null;
+  selectedCategory: CategoryResource | null = null;
 
   // Control de edición
   editingId?: number | null = null;
   editing = false;
 
   // Mostrar u ocultar lista
-  showResourceTypesList = false;
+  showResourceTypesList = true;
 
   ngOnInit(): void {
     this.loadResourceTypes();
@@ -50,12 +50,12 @@ export class ResourceTypeComponent implements OnInit {
           : Array.isArray(res)
           ? res
           : [];
+        console.log(data);
         this.resourceTypes = data.map(
           (it: any, idx: number) =>
             new ResourceType(
               it.name ?? '—',
               it.isActive ?? true,
-              it.idCategoryResource ?? it.categoryResource?.idCategoryResource,
               it.idResourceType ?? it.id ?? idx + 1,
               it.categoryResource
                 ? new CategoryResource(
@@ -82,14 +82,16 @@ export class ResourceTypeComponent implements OnInit {
           : Array.isArray(res)
           ? res
           : [];
-        this.categories = data.map(
-          (it: any, idx: number) =>
-            new CategoryResource(
-              it.name ?? '—',
-              it.isActive ?? true,
-              it.idCategoryResource ?? it.id ?? idx + 1
-            )
-        );
+        this.categories = data
+          .map(
+            (it: any, idx: number) =>
+              new CategoryResource(
+                it.name ?? '—',
+                it.isActive ?? true,
+                it.idCategoryResource ?? it.id ?? idx + 1
+              )
+          )
+          .filter((c: CategoryResource) => c.isActive === true);
       },
       error: () => {
         this.categories = [];
@@ -101,12 +103,13 @@ export class ResourceTypeComponent implements OnInit {
   createOrUpdate(): void {
     const n = this.name.trim();
     if (!n) return;
+    if (!this.selectedCategory?.idCategoryResource) return;
 
     const body = {
       name: n,
       isActive: this.isActive,
-      idCategoryResource: this.selectedCategoryId ?? undefined,
-    };
+      idCategoryResource: this.selectedCategory?.idCategoryResource,
+    } as any;
 
     if (this.editing && this.editingId != null) {
       this.resourceTypeService.updateResourceType(this.editingId, body).subscribe({
@@ -133,7 +136,11 @@ export class ResourceTypeComponent implements OnInit {
     this.editingId = rt.idResourceType ?? null;
     this.name = rt.name;
     this.isActive = rt.isActive;
-    this.selectedCategoryId = rt.idCategoryResource ?? null;
+    this.selectedCategory = rt.categoryResource
+      ? this.categories.find(
+          (c) => c.idCategoryResource === rt.categoryResource?.idCategoryResource
+        ) ?? null
+      : null;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -152,7 +159,7 @@ export class ResourceTypeComponent implements OnInit {
   resetForm(): void {
     this.name = '';
     this.isActive = true;
-    this.selectedCategoryId = null;
+    this.selectedCategory = null;
     this.editing = false;
     this.editingId = null;
   }

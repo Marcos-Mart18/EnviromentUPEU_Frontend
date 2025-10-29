@@ -10,18 +10,20 @@ export class ResourceType {
   constructor(
     name: string,
     isActive: boolean,
-    idCategoryResource?: number,
     idResourceType?: number,
-    categoryResource?: CategoryResource
+    categoryResource?: CategoryResource,
+    idCategoryResource?: number
   ) {
     this.name = name;
     this.isActive = isActive;
-    this.idCategoryResource = idCategoryResource;
     if (idResourceType) {
       this.idResourceType = idResourceType;
     }
     if (categoryResource) {
       this.categoryResource = categoryResource;
+    }
+    if (idCategoryResource) {
+      this.idCategoryResource = idCategoryResource;
     }
   }
 }

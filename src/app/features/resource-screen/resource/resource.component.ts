@@ -6,7 +6,7 @@ import { ResourceService } from '../../../core/services/resource.service';
 import { Resource } from '../../../core/models/resource.model';
 import { ResourceTypeService } from '../../../core/services/resource-type.service';
 import { ResourceType } from '../../../core/models/resource-type.model';
-import { StateService } from '../../../core/services/state.service';
+import { ResourceStateService } from '../../../core/services/resource-state.service';
 import { ResourceState } from '../../../core/models/resource-state.model';
 
 @Component({
@@ -19,7 +19,7 @@ import { ResourceState } from '../../../core/models/resource-state.model';
 export class ResourceComponent implements OnInit {
   private resourceService = inject(ResourceService);
   private resourceTypeService = inject(ResourceTypeService);
-  private stateService = inject(StateService);
+  private stateService = inject(ResourceStateService);
   private router = inject(Router);
 
   showResourcesList: boolean = true;
@@ -36,6 +36,7 @@ export class ResourceComponent implements OnInit {
   resourcePhotoUrl = '';
   idResourceType?: number | null = null;
   idState?: number | null = null;
+  createPhotoFile: File | null = null;
 
   // Variables para edición
   editingId?: number | null = null;
@@ -45,6 +46,7 @@ export class ResourceComponent implements OnInit {
   editingPhotoUrl = '';
   editingIdResourceType?: number | null = null;
   editingIdState?: number | null = null;
+  editingPhotoFile: File | null = null;
 
   ngOnInit(): void {
     this.load();
@@ -61,7 +63,7 @@ export class ResourceComponent implements OnInit {
           : Array.isArray(res)
           ? res
           : [];
-
+        
         this.resources = items.map((it: any, idx: number) => {
           const id = it.idResource ?? it.id ?? idx + 1;
           const type =
@@ -69,8 +71,9 @@ export class ResourceComponent implements OnInit {
             new ResourceType(
               it.resource_type?.name ?? '—',
               it.resource_type?.isActive ?? true,
-              it.resource_type?.idCategoryResource ?? undefined,
-              it.resource_type?.idResourceType ?? undefined
+              it.resource_type?.idResourceType ?? undefined,
+              undefined,
+              it.resource_type?.idCategoryResource ?? undefined
             );
 
           const state =
@@ -81,10 +84,12 @@ export class ResourceComponent implements OnInit {
               it.state?.idState ?? undefined
             );
 
+          const photoUrl = it.resourcePhotoUrl ?? it.photoUrl ?? it.resource_photo_url ?? '';
+
           return new Resource(
             it.code ?? '',
             it.stock ?? 0,
-            it.resourcePhotoUrl ?? '',
+            photoUrl,
             it.observation ?? '',
             it.idResourceType ?? type.idResourceType,
             it.idState ?? state.idState,
@@ -98,7 +103,9 @@ export class ResourceComponent implements OnInit {
         this.resources = [];
       },
     });
+    console.log(this.resources);
   }
+
 
   /** Cargar tipos de recurso */
   loadResourceTypes(): void {
@@ -109,15 +116,18 @@ export class ResourceComponent implements OnInit {
           : Array.isArray(res)
           ? res
           : [];
-        this.resourceTypes = items.map(
-          (it: any, idx: number) =>
-            new ResourceType(
-              it.name ?? '—',
-              it.isActive ?? true,
-              it.idCategoryResource ?? undefined,
-              it.idResourceType ?? idx + 1
-            )
-        );
+        this.resourceTypes = items
+          .map(
+            (it: any, idx: number) =>
+              new ResourceType(
+                it.name ?? '—',
+                it.isActive ?? true,
+                it.idResourceType ?? idx + 1,
+                undefined,
+                it.idCategoryResource ?? undefined
+              )
+          )
+          .filter((rt: ResourceType) => rt.isActive === true);
       },
       error: () => {
         this.resourceTypes = [];
@@ -134,10 +144,18 @@ export class ResourceComponent implements OnInit {
           : Array.isArray(res)
           ? res
           : [];
-        this.states = items.map(
-          (it: any, idx: number) =>
-            new ResourceState(it.name ?? '—', it.isActive ?? true, it.idState ?? idx + 1)
-        );
+        this.states = items
+          .map((it: any, idx: number) => {
+            const name = it.name ?? '—';
+            const isActive = typeof it.isActive === 'boolean'
+              ? it.isActive
+              : (typeof it.is_active === 'string'
+                  ? it.is_active.toLowerCase() === 'true'
+                  : !!it.is_active);
+            const id = it.idState ?? it.id_state ?? it.id ?? idx + 1;
+            return new ResourceState(name, isActive, id);
+          })
+          .filter((s: ResourceState) => s.isActive === true);
       },
       error: () => {
         this.states = [];
@@ -149,15 +167,21 @@ export class ResourceComponent implements OnInit {
   create(): void {
     const c = this.code.trim();
     if (!c) return;
+    // Multipart según especificación de Postman: 'resource' (JSON) + 'photo' (file)
+    const dto = {
+      code: c,
+      stock: this.stock ?? 0,
+      observation: this.observation?.trim() || '',
+      idResourceType: this.idResourceType ?? undefined,
+      idState: this.idState ?? undefined,
+    } as any;
+    const form = new FormData();
+    form.append('resource', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
+    if (this.createPhotoFile) {
+      form.append('photo', this.createPhotoFile as File, (this.createPhotoFile as File).name);
+    }
     this.resourceService
-      .createResource({
-        code: c,
-        stock: this.stock ?? 0,
-        resourcePhotoUrl: this.resourcePhotoUrl?.trim() || '',
-        observation: this.observation?.trim() || '',
-        idResourceType: this.idResourceType ?? undefined,
-        idState: this.idState ?? undefined,
-      })
+      .createResource(form)
       .subscribe({
         next: () => {
           this.resetCreateForm();
@@ -188,6 +212,7 @@ export class ResourceComponent implements OnInit {
     this.editingPhotoUrl = '';
     this.editingIdResourceType = null;
     this.editingIdState = null;
+    this.editingPhotoFile = null;
   }
 
   /** Guardar cambios de edición */
@@ -195,15 +220,20 @@ export class ResourceComponent implements OnInit {
     if (this.editingId == null) return;
     const c = this.editingCode.trim();
     if (!c) return;
+    const dto = {
+      code: c,
+      stock: this.editingStock ?? 0,
+      observation: this.editingObservation?.trim() || '',
+      idResourceType: this.editingIdResourceType ?? undefined,
+      idState: this.editingIdState ?? undefined,
+    } as any;
+    const payload = new FormData();
+    payload.append('resource', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
+    if (this.editingPhotoFile) {
+      payload.append('photo', this.editingPhotoFile as File, (this.editingPhotoFile as File).name);
+    }
     this.resourceService
-      .updateResource(this.editingId, {
-        code: c,
-        stock: this.editingStock ?? 0,
-        resourcePhotoUrl: this.editingPhotoUrl?.trim() || '',
-        observation: this.editingObservation?.trim() || '',
-        idResourceType: this.editingIdResourceType ?? undefined,
-        idState: this.editingIdState ?? undefined,
-      })
+      .updateResource(this.editingId, payload)
       .subscribe({
         next: () => {
           this.cancel();
@@ -236,5 +266,16 @@ export class ResourceComponent implements OnInit {
     this.observation = '';
     this.idResourceType = null;
     this.idState = null;
+    this.createPhotoFile = null;
+  }
+
+  onCreateFileChange(event: any): void {
+    const file = event?.target?.files?.[0];
+    this.createPhotoFile = file ?? null;
+  }
+
+  onEditFileChange(event: any): void {
+    const file = event?.target?.files?.[0];
+    this.editingPhotoFile = file ?? null;
   }
 }
