@@ -16,10 +16,11 @@ import { AmbienteComponent } from './features/env-screen/ambiente/ambiente.compo
 import { BuildingComponent } from './features/env-screen/building/building.component';
 import { FloorComponent } from './features/env-screen/floor/floor.component';
 import { StateComponent } from './features/env-screen/state/state.component';
+import { ResourcesStateComponent } from './features/resource-screen/resource-state/resource-state.component';
 import { ResourceScreenComponent } from './features/resource-screen/resource-screen.component';
 import { ResourceComponent } from './features/resource-screen/resource/resource.component';
-import { ResourceStateComponent } from './features/resource-screen/resource-state/resource-state.component';
 import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
+import { ResourceCategoryComponent } from './features/resource-screen/resource-category/resource-category.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -58,7 +59,8 @@ export const routes: Routes = [
                 { path: 'type-environment', component: TypeEnvComponent },
                 { path: 'buildings', component: BuildingComponent },
                 { path: 'floors', component: FloorComponent },
-                { path: 'states', component: StateComponent },
+              { path: 'states', component: StateComponent },
+              {path: 'resource-state', component: ResourcesStateComponent}
             ]
         },
         
@@ -68,8 +70,9 @@ export const routes: Routes = [
             component: ResourceScreenComponent,
             children: [
                 { path: 'resources', component: ResourceComponent },
-                { path: 'states', component: ResourceStateComponent },
+                { path: 'states', component: ResourcesStateComponent },
                 { path: 'types', component: ResourceTypeComponent },
+                { path: 'categories', component: ResourceCategoryComponent },
             ]
         },
         ],
