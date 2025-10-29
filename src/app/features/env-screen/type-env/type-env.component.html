@@ -1,4 +1,49 @@
 <div class="mx-auto max-w-5xl px-6 py-8">
+  <!-- Toast top-right -->
+  <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
+    <div
+      class="toast rounded-md bg-emerald-600 px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
+    >
+      <span>{{ toastMessage }}</span>
+      <button
+        *ngIf="toastHasUndo && lastDeleted"
+        (click)="undoDelete()"
+        class="underline text-sm"
+      >
+        Deshacer
+      </button>
+    </div>
+  </div>
+
+  <!-- floating confirm popup positioned near the clicked button -->
+  <div
+    *ngIf="pendingDeleteId && popupStyle"
+    [ngStyle]="popupStyle"
+    class="confirm-popup z-50 w-56 rounded-md border border-slate-200 bg-white p-3 shadow-lg"
+  >
+    <div class="text-sm font-semibold text-slate-800">
+      ¿Seguro que quieres eliminar?
+    </div>
+    <div class="mt-1 text-sm text-slate-600">
+      Se eliminará: <strong>{{ pendingDeleteName }}</strong>
+    </div>
+    <div class="mt-3 flex gap-2 justify-end">
+      <button
+        (click)="performDeleteConfirmed()"
+        class="rounded px-3 py-1 text-sm font-semibold text-white"
+        style="background: #ef4444"
+      >
+        Eliminar
+      </button>
+      <button
+        (click)="cancelRemove()"
+        class="rounded px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
   <!-- Botón Volver -->
   <button
     (click)="volver()"
@@ -107,6 +152,7 @@
           <tr
             class="text-xs font-semibold uppercase tracking-wide text-slate-500"
           >
+            <th class="px-4 py-3">#</th>
             <th class="px-4 py-3">Nombre</th>
             <th class="px-4 py-3">Estado</th>
             <th class="px-4 py-3">Acciones</th>
@@ -114,14 +160,27 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let t of tiposFiltrados; trackBy: trackById"
+            *ngFor="let t of tiposFiltrados; let i = index; trackBy: trackById"
             class="border-t border-slate-100 text-sm text-slate-700"
           >
-            <td class="px-4 py-4 font-medium">{{ t.name }}</td>
-            <td class="px-4 py-4">
-              <span
+            <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editandoId !== t.id_type_academic_space; else editName">
+                {{ t.name }}
+              </ng-container>
+              <ng-template #editName>
+                <input
+                  [(ngModel)]="nuevoNombre"
+                  class="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                />
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <button
+                (click)="toggleEstado(t)"
                 class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
                 [ngClass]="estadoChipClasses(t.is_active)"
+                title="Alternar estado"
               >
                 <span
                   class="inline-block h-2 w-2 rounded-full"
@@ -129,36 +188,93 @@
                   [class.bg-gray-500]="t.is_active === 'I'"
                 ></span>
                 {{ t.is_active === "A" ? "Activo" : "Inactivo" }}
-              </span>
+              </button>
             </td>
-            <td class="px-4 py-4">
+            <td class="px-4 py-3">
               <div class="flex items-center gap-3">
-                <button
-                  (click)="editar(t)"
-                  class="text-sm font-semibold text-emerald-700 hover:underline"
-                >
-                  Editar
-                </button>
-                <span class="text-slate-300">|</span>
-                <button
-                  (click)="eliminar(t)"
-                  class="text-sm font-semibold text-red-600 hover:underline"
-                >
-                  Eliminar
-                </button>
-                <span class="text-slate-300">|</span>
-                <button
-                  (click)="toggleEstado(t)"
-                  class="text-xs text-slate-500 hover:text-slate-700"
-                  title="Activar/Inactivar"
-                >
-                  {{ t.is_active === "A" ? "Inactivar" : "Activar" }}
-                </button>
+                <ng-container *ngIf="editandoId !== t.id_type_academic_space; else editingActions">
+                  <button
+                    (click)="editar(t)"
+                    title="Editar"
+                    class="text-slate-600 hover:text-emerald-700"
+                  >
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="confirmRemove(t, $event)"
+                    title="Eliminar"
+                    class="text-slate-600 hover:text-red-600"
+                  >
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </ng-container>
+                <ng-template #editingActions>
+                  <button
+                    (click)="save()"
+                    title="Guardar cambios"
+                    class="text-green-600 hover:text-green-800"
+                  >
+                    <svg 
+                      class="h-5 w-5"
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round" 
+                        stroke-width="2" 
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="cancelarEdicion()"
+                    title="Cancelar"
+                    class="text-slate-600 hover:text-gray-800"
+                  >
+                    <svg 
+                      class="h-5 w-5"
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round" 
+                        stroke-width="2" 
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </ng-template>
               </div>
             </td>
-          </tr>
-
-          <tr *ngIf="tiposFiltrados.length === 0">
+          </tr>          <tr *ngIf="tiposFiltrados.length === 0">
             <td
               colspan="3"
               class="px-4 py-8 text-center text-sm text-slate-500"
