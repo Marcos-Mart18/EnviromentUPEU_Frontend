@@ -36,6 +36,16 @@ export class ResourceTypeComponent implements OnInit {
   // Mostrar u ocultar lista
   showResourceTypesList = true;
 
+  // Confirmación de eliminación y mensajes
+  pendingDeleteId?: number | null = null;
+  pendingDeleteName = '';
+  lastDeleted?: ResourceType | null = null;
+  popupStyle: { [k: string]: string } | null = null;
+  showToast = false;
+  toastMessage = '';
+  toastSuccess = false;
+  private toastTimer: any = null;
+
   ngOnInit(): void {
     this.loadResourceTypes();
     this.loadCategories();
@@ -153,6 +163,80 @@ export class ResourceTypeComponent implements OnInit {
       next: () => this.loadResourceTypes(),
       error: () => {},
     });
+  }
+
+  // Abrir confirmación de eliminación
+  confirmRemove(rt: ResourceType, ev?: MouseEvent): void {
+    this.pendingDeleteId = rt.idResourceType ?? null;
+    this.pendingDeleteName = rt.name;
+    this.lastDeleted = new ResourceType(rt.name, rt.isActive, rt.idResourceType, rt.categoryResource);
+
+    const btn = ev?.currentTarget as HTMLElement;
+    const rect = btn?.getBoundingClientRect();
+    const popupW = 224;
+    const popupH = 96;
+    let top: number;
+    let left: number;
+
+    if (rect) {
+      top = rect.top > popupH + 20 ? rect.top - popupH - 8 : rect.bottom + 8;
+      left = rect.left + rect.width / 2 - popupW / 2;
+      const minLeft = 8;
+      const maxLeft = Math.max(8, window.innerWidth - popupW - 8);
+      left = Math.min(Math.max(left, minLeft), maxLeft);
+    } else {
+      top = Math.max(8, window.innerHeight / 2 - popupH / 2);
+      left = Math.max(8, window.innerWidth / 2 - popupW / 2);
+    }
+
+    this.popupStyle = {
+      position: 'fixed',
+      top: `${top}px`,
+      left: `${left}px`,
+    };
+  }
+
+  // Cancelar confirmación
+  cancelRemove(): void {
+    this.pendingDeleteId = null;
+    this.pendingDeleteName = '';
+    this.popupStyle = null;
+  }
+
+  // Ejecutar eliminación confirmada
+  performDeleteConfirmed(): void {
+    if (!this.pendingDeleteId) return;
+
+    this.resourceTypeService.deleteResourceType(this.pendingDeleteId).subscribe({
+      next: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.loadResourceTypes();
+        this.showToastMessage('Eliminado correctamente', true);
+      },
+      error: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.showToastMessage('Error al eliminar', false);
+      },
+    });
+  }
+
+  // Mostrar mensaje toast
+  private showToastMessage(message: string, isSuccess: boolean): void {
+    this.toastMessage = message;
+    this.showToast = true;
+    this.toastSuccess = isSuccess;
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.toastTimer = setTimeout(() => {
+      this.showToast = false;
+      this.toastMessage = '';
+      this.toastSuccess = false;
+    }, 5000);
   }
 
   // 🔹 Cancelar edición y limpiar formulario

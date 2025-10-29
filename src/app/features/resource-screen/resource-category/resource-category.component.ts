@@ -24,6 +24,15 @@ export class ResourceCategoryComponent implements OnInit {
   editingId: number | null = null;
   showCategoriesList = true;
 
+  pendingDeleteId?: number | null = null;
+  pendingDeleteName = '';
+  lastDeleted?: CategoryResource | null = null;
+  popupStyle: { [k: string]: string } | null = null;
+  showToast = false;
+  toastMessage = '';
+  toastSuccess = false;
+  private toastTimer: any = null;
+
   ngOnInit(): void {
     this.loadCategories();
   }
@@ -95,6 +104,76 @@ export class ResourceCategoryComponent implements OnInit {
       next: () => this.loadCategories(),
       error: () => {},
     });
+  }
+
+  confirmRemove(c: CategoryResource, ev?: MouseEvent): void {
+    this.pendingDeleteId = c.idCategoryResource ?? null;
+    this.pendingDeleteName = c.name;
+    this.lastDeleted = new CategoryResource(c.name, c.isActive, c.idCategoryResource);
+
+    const btn = ev?.currentTarget as HTMLElement;
+    const rect = btn?.getBoundingClientRect();
+    const popupW = 224;
+    const popupH = 96;
+    let top: number;
+    let left: number;
+
+    if (rect) {
+      top = rect.top > popupH + 20 ? rect.top - popupH - 8 : rect.bottom + 8;
+      left = rect.left + rect.width / 2 - popupW / 2;
+      const minLeft = 8;
+      const maxLeft = Math.max(8, window.innerWidth - popupW - 8);
+      left = Math.min(Math.max(left, minLeft), maxLeft);
+    } else {
+      top = Math.max(8, window.innerHeight / 2 - popupH / 2);
+      left = Math.max(8, window.innerWidth / 2 - popupW / 2);
+    }
+
+    this.popupStyle = {
+      position: 'fixed',
+      top: `${top}px`,
+      left: `${left}px`,
+    };
+  }
+
+  cancelRemove(): void {
+    this.pendingDeleteId = null;
+    this.pendingDeleteName = '';
+    this.popupStyle = null;
+  }
+
+  performDeleteConfirmed(): void {
+    if (!this.pendingDeleteId) return;
+
+    this.categoryService.deleteCategoryResource(this.pendingDeleteId).subscribe({
+      next: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.loadCategories();
+        this.showToastMessage('Eliminado correctamente', true);
+      },
+      error: () => {
+        this.pendingDeleteId = null;
+        this.pendingDeleteName = '';
+        this.popupStyle = null;
+        this.showToastMessage('Error al eliminar', false);
+      },
+    });
+  }
+
+  private showToastMessage(message: string, isSuccess: boolean): void {
+    this.toastMessage = message;
+    this.showToast = true;
+    this.toastSuccess = isSuccess;
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.toastTimer = setTimeout(() => {
+      this.showToast = false;
+      this.toastMessage = '';
+      this.toastSuccess = false;
+    }, 5000);
   }
 
   resetForm(): void {
