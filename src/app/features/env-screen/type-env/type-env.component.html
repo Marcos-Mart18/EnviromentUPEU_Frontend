@@ -98,7 +98,7 @@
       <!-- Botones -->
       <div class="flex items-center gap-3">
         <button
-          (click)="crearOActualizar()"
+          (click)="editandoId ? save() : crearOActualizar()"
           class="inline-flex items-center rounded-lg bg-[#BFC621] px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:brightness-95 active:translate-y-px"
         >
           {{ editandoId ? "Guardar Cambios" : "Crear Tipo de Ambiente" }}
@@ -165,14 +165,16 @@
           >
             <td class="px-4 py-3">{{ i + 1 }}</td>
             <td class="px-4 py-3">
-              <ng-container *ngIf="editandoId !== t.id_type_academic_space; else editName">
+              <ng-container
+                *ngIf="editandoId !== t.id_type_academic_space; else editName"
+              >
                 {{ t.name }}
               </ng-container>
               <ng-template #editName>
-                <input
-                  [(ngModel)]="nuevoNombre"
-                  class="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
-                />
+                <!-- Durante la edición principal usamos el formulario superior (nuevoNombre).
+                     Evitamos mostrar aquí un input ligado a nuevoNombre para que no se duplique.
+                     Mostramos sólo el nombre actual en la fila. -->
+                <span class="text-slate-700">{{ t.name }}</span>
               </ng-template>
             </td>
             <td class="px-4 py-3">
@@ -192,7 +194,12 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
-                <ng-container *ngIf="editandoId !== t.id_type_academic_space; else editingActions">
+                <ng-container
+                  *ngIf="
+                    editandoId !== t.id_type_academic_space;
+                    else editingActions
+                  "
+                >
                   <button
                     (click)="editar(t)"
                     title="Editar"
@@ -238,16 +245,16 @@
                     title="Guardar cambios"
                     class="text-green-600 hover:text-green-800"
                   >
-                    <svg 
+                    <svg
                       class="h-5 w-5"
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path 
-                        stroke-linecap="round" 
-                        stroke-linejoin="round" 
-                        stroke-width="2" 
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
@@ -257,16 +264,16 @@
                     title="Cancelar"
                     class="text-slate-600 hover:text-gray-800"
                   >
-                    <svg 
+                    <svg
                       class="h-5 w-5"
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path 
-                        stroke-linecap="round" 
-                        stroke-linejoin="round" 
-                        stroke-width="2" 
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
                         d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
@@ -274,9 +281,10 @@
                 </ng-template>
               </div>
             </td>
-          </tr>          <tr *ngIf="tiposFiltrados.length === 0">
+          </tr>
+          <tr *ngIf="tiposFiltrados.length === 0">
             <td
-              colspan="3"
+              colspan="4"
               class="px-4 py-8 text-center text-sm text-slate-500"
             >
               No se encontraron tipos que coincidan con “{{ search }}”.
