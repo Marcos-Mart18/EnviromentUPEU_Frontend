@@ -36,11 +36,10 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { username, password } = this.loginForm.value;
+    const { username, password, remember } = this.loginForm.value;
 
-    this.authService.login({ username, password }).subscribe({
+    this.authService.login({ username, password }, !!remember).subscribe({
       next: (response) => {
-        console.log('Login exitoso', response);
         this.isLoading = false;
         this.router.navigate(['/main']);
       },

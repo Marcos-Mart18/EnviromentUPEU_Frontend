@@ -26,3 +26,40 @@ export interface LoginResponse {
 export interface LogoutRequest {
   refreshToken: string;
 }
+
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  userProfileId: number;
+}
+
+export interface RegisterResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  user: User;
+}
+
+export interface LoginResponseSnake {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface LoginRememberResponseSnake {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface RefreshResponseSnake {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface LogoutRequestSnake {
+  access_token: string;
+  refresh_token?: string;
+}

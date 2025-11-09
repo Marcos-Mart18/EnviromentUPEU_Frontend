@@ -22,6 +22,8 @@ import { ResourceComponent } from './features/resource-screen/resource/resource.
 import { ResourceTypeComponent } from './features/resource-screen/resource-type/resource-type.component';
 import { ResourceCategoryComponent } from './features/resource-screen/resource-category/resource-category.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
+import { UsersComponent } from './features/users/users.component';
 
 export const routes: Routes = [
     {
@@ -49,6 +51,7 @@ export const routes: Routes = [
         { path: 'proximamente', component: ProximamenteComponent },
         { path: 'notificaciones', component: NotificacionesComponent },
         { path: 'configuracion', component: ConfiguracionComponent },
+        { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
         
         // Env-creation con rutas hijas
         {

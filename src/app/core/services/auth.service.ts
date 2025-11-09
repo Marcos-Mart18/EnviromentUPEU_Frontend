@@ -1,8 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, of } from 'rxjs';
-import { LoginRequest, LoginResponse, LogoutRequest, User } from '../models/auth.model';
+import { BehaviorSubject, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  LoginRequest,
+  RegisterRequest,
+  RegisterResponse,
+  LoginResponseSnake,
+  LoginRememberResponseSnake,
+  RefreshResponseSnake,
+  LogoutRequestSnake,
+  User
+} from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,9 +21,9 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   
-  private readonly API_URL = `${environment.apiUrl}/api/auth`;
-  private readonly ACCESS_TOKEN_KEY = 'accessToken';
-  private readonly REFRESH_TOKEN_KEY = 'refreshToken';
+  private readonly API_URL = `${environment.apiUrl}/microservice-auth/api/auth`;
+  private readonly ACCESS_TOKEN_KEY = 'access_token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'user';
   
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
@@ -23,44 +32,89 @@ export class AuthService {
   constructor() {}
 
   /**
-   * Realiza el login del usuario
+   * Login: sin recordar (POST /login) o con recordar (POST /login/remember)
    */
-  login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
-      tap(response => {
-        this.saveTokens(response);
-        this.saveUser(response.user);
-        this.currentUserSubject.next(response.user);
-      })
+  login(credentials: LoginRequest, remember: boolean): Observable<void> {
+    const url = remember ? `${this.API_URL}/login/remember` : `${this.API_URL}/login`;
+    return this.http.post<LoginResponseSnake | LoginRememberResponseSnake>(url, credentials).pipe(
+      tap((resp) => {
+        // Guardar access en sessionStorage
+        const access = (resp as LoginResponseSnake).access_token;
+        this.saveAccessToken(access);
+
+        // Guardar refresh en localStorage si viene (remember)
+        const refresh = (resp as LoginRememberResponseSnake).refresh_token;
+        if (refresh) {
+          this.saveRefreshToken(refresh);
+        } else {
+          this.removeRefreshToken();
+        }
+      }),
+      switchMap(() => this.fetchAndSetCurrentUser())
     );
   }
 
   /**
-   * Realiza el logout del usuario
+   * Registro (POST /register) - respuesta camelCase con usuario
+   */
+  register(data: RegisterRequest): Observable<void> {
+    return this.http.post<RegisterResponse>(`${this.API_URL}/register`, data).pipe(
+      tap((resp) => {
+        this.saveAccessToken(resp.accessToken);
+        if (resp.refreshToken) this.saveRefreshToken(resp.refreshToken);
+        this.saveUser(resp.user);
+        this.currentUserSubject.next(resp.user);
+      }),
+      switchMap(() => of(void 0))
+    );
+  }
+
+  /**
+   * Realiza el logout del usuario (snake_case body)
    */
   logout(): Observable<any> {
-    const refreshToken = this.getRefreshToken();
-    
-    if (!refreshToken) {
+    const access = this.getAccessToken();
+    const refresh = this.getRefreshToken();
+
+    if (!access && !refresh) {
       this.clearSession();
       return of(null);
     }
 
-    const logoutRequest: LogoutRequest = { refreshToken };
-    
-    return this.http.post(`${this.API_URL}/logout`, logoutRequest).pipe(
-      tap(() => {
-        this.clearSession();
-      })
+    const body: LogoutRequestSnake = refresh
+      ? { access_token: access ?? '', refresh_token: refresh }
+      : { access_token: access ?? '' };
+
+    return this.http.post(`${this.API_URL}/logout`, body).pipe(
+      tap(() => this.clearSession())
     );
   }
 
   /**
-   * Guarda los tokens en localStorage
+   * Refresh access token con refresh_token
    */
-  private saveTokens(response: LoginResponse): void {
-    localStorage.setItem(this.ACCESS_TOKEN_KEY, response.accessToken);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  refreshAccessToken(): Observable<string> {
+    const refresh = this.getRefreshToken();
+    if (!refresh) return of('');
+    return this.http.post<RefreshResponseSnake>(`${this.API_URL}/refresh`, { refresh_token: refresh }).pipe(
+      tap((resp) => this.saveAccessToken(resp.access_token)),
+      switchMap((resp) => of(resp.access_token))
+    );
+  }
+
+  /**
+   * Guarda access en sessionStorage
+   */
+  private saveAccessToken(access: string): void {
+    if (access) sessionStorage.setItem(this.ACCESS_TOKEN_KEY, access);
+  }
+
+  private saveRefreshToken(refresh: string): void {
+    if (refresh) localStorage.setItem(this.REFRESH_TOKEN_KEY, refresh);
+  }
+
+  private removeRefreshToken(): void {
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
   }
 
   /**
@@ -74,6 +128,7 @@ export class AuthService {
    * Limpia la sesión del usuario
    */
   private clearSession(): void {
+    sessionStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -85,7 +140,7 @@ export class AuthService {
    * Obtiene el access token
    */
   getAccessToken(): string | null {
-    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    return sessionStorage.getItem(this.ACCESS_TOKEN_KEY) || localStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
   /**
@@ -123,5 +178,25 @@ export class AuthService {
   hasRole(roleName: string): boolean {
     const user = this.getCurrentUser();
     return user?.roles.some(role => role.name === roleName) ?? false;
+  }
+
+  /**
+   * Obtiene el usuario autenticado desde el backend y lo guarda
+   */
+  fetchAndSetCurrentUser(): Observable<void> {
+    return this.http.get<User>(`${this.API_URL}/me`).pipe(
+      tap((user) => {
+        this.saveUser(user);
+        this.currentUserSubject.next(user);
+      }),
+      switchMap(() => of(void 0))
+    );
+  }
+
+  /**
+   * Manejo público de no autorizado
+   */
+  public handleUnauthorized(): void {
+    this.clearSession();
   }
 }

@@ -1,6 +1,7 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { catchError, switchMap, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -8,9 +9,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Rutas públicas que NO necesitan token
   const publicRoutes = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/refresh-token'
+    '/microservice-auth/api/auth/login',
+    '/microservice-auth/api/auth/login/remember',
+    '/microservice-auth/api/auth/register',
+    '/microservice-auth/api/auth/refresh'
   ];
 
   // No agregar token a las rutas públicas
@@ -19,15 +21,36 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  // Clonar la petición y agregar el header de autorización
-  if (accessToken) {
-    const clonedReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-    return next(clonedReq);
-  }
+  const authReq = accessToken
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })
+    : req;
 
-  return next(req);
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        const refreshToken = authService.getRefreshToken();
+        if (refreshToken) {
+          return authService.refreshAccessToken().pipe(
+            switchMap((newAccess) => {
+              if (!newAccess) {
+                authService.handleUnauthorized();
+                return throwError(() => error);
+              }
+              const retryReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${newAccess}` }
+              });
+              return next(retryReq);
+            }),
+            catchError((refreshErr) => {
+              authService.handleUnauthorized();
+              return throwError(() => refreshErr);
+            })
+          );
+        } else {
+          authService.handleUnauthorized();
+        }
+      }
+      return throwError(() => error);
+    })
+  );
 };
