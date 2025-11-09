@@ -1,0 +1,59 @@
+<div class="p-4 space-y-6">
+  <h2 class="text-xl font-semibold">Usuarios</h2>
+
+  <!-- Crear usuario -->
+  <div class="p-4 border rounded-lg space-y-3">
+    <h3 class="font-medium">Crear usuario</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <input [(ngModel)]="c_username" placeholder="Username" class="border rounded p-2" />
+      <input [(ngModel)]="c_password" placeholder="Password" type="password" class="border rounded p-2" />
+      <input [(ngModel)]="c_userProfileId" placeholder="User Profile ID" type="number" class="border rounded p-2" />
+      <button (click)="create()" class="bg-green-600 text-white rounded px-4 py-2">Crear</button>
+    </div>
+  </div>
+
+  <!-- Lista de usuarios -->
+  <div class="p-4 border rounded-lg">
+    <h3 class="font-medium mb-3">Listado</h3>
+    <div *ngIf="isLoading">Cargando...</div>
+    <div *ngIf="!isLoading && users.length === 0">Sin usuarios</div>
+    <table *ngIf="!isLoading && users.length" class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b">
+          <th class="py-2">ID</th>
+          <th>Username</th>
+          <th>Perfil</th>
+          <th>Activo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users" class="border-b">
+          <td class="py-2">{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.userProfileId }}</td>
+          <td>{{ u.isActive ? 'Sí' : 'No' }}</td>
+          <td class="space-x-2">
+            <button (click)="startEdit(u)" class="px-3 py-1 rounded bg-blue-600 text-white">Editar</button>
+            <button (click)="remove(u)" class="px-3 py-1 rounded bg-red-600 text-white">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Editar usuario -->
+  <div *ngIf="editingId != null" class="p-4 border rounded-lg space-y-3">
+    <h3 class="font-medium">Editar usuario</h3>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+      <input [(ngModel)]="e_username" placeholder="Username" class="border rounded p-2" />
+      <input [(ngModel)]="e_password" placeholder="Nuevo password (opcional)" type="password" class="border rounded p-2" />
+      <input [(ngModel)]="e_userProfileId" placeholder="User Profile ID" type="number" class="border rounded p-2" />
+      <label class="flex items-center space-x-2"><input type="checkbox" [(ngModel)]="e_isActive" /><span>Activo</span></label>
+      <div class="space-x-2">
+        <button (click)="save()" class="px-4 py-2 rounded bg-blue-600 text-white">Guardar</button>
+        <button (click)="cancel()" class="px-4 py-2 rounded bg-gray-300">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>

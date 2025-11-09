@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -11,21 +12,28 @@ import { CommonModule } from '@angular/common';
 })
 export class RegisterComponent {
   isSubmitting = false;
+  username = '';
+  password = '';
+  confirmPassword = '';
+  userProfileId = 1;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onSubmit(form: any): void {
-    if (form.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
-      
-      // Simular el proceso de registro
-      setTimeout(() => {
-        // Aquí iría la lógica real de registro
-        console.log('Registro exitoso');
-        
-        // Redirigir al componente de éxito
-        this.router.navigate(['/register-success']);
-      }, 1000);
-    }
+    if (!form.valid || this.isSubmitting) return;
+    if (!this.username || !this.password || this.password !== this.confirmPassword) return;
+
+    this.isSubmitting = true;
+    this.authService
+      .register({ username: this.username, password: this.password, userProfileId: this.userProfileId })
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.router.navigate(['/register-success']);
+        },
+        error: () => {
+          this.isSubmitting = false;
+        }
+      });
   }
 }
