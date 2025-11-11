@@ -210,7 +210,7 @@ export class AuthService {
 
   // Optional helper (if backend supports it). If not, caller should ignore errors.
   getAuthUserByProfileId(profileId: number | string): Observable<AuthUserDTO> {
-    return this.http.get<AuthUserDTO>(`${this.API_URL}/users/by-profile/${profileId}`);
+    return this.http.get<AuthUserDTO>(`${environment.apiUrl}/api/users/auth/by-profile/${profileId}`);
   }
 
   createAuthUser(payload: CreateAuthUserRequest): Observable<AuthUserDTO> {

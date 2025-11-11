@@ -70,6 +70,7 @@ export class UserDetailComponent implements OnInit {
         this.creatingAuth = true;
       }
     });
+    console.log('Loading auth user for profile ID:', this.profileId);
   }
 
   onPhotoSelected(evt: Event): void {
