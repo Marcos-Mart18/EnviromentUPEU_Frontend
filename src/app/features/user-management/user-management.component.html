@@ -1,0 +1,23 @@
+<div class="mx-auto max-w-6xl px-4 py-6">
+  <div class="tabs-container mb-6">
+    <div class="tabs-scroll flex space-x-4 overflow-x-auto py-2">
+      <button 
+        class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-700"
+        [ngClass]="{'bg-blue-500 text-white': activeTab==='users', 'hover:bg-blue-400': activeTab!=='users'}"
+        (click)="setTab('users')">
+        Usuarios
+      </button>
+      <button 
+        class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-700"
+        [ngClass]="{'bg-blue-500 text-white': activeTab==='roles', 'hover:bg-blue-400': activeTab!=='roles'}"
+        (click)="setTab('roles')">
+        Roles
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <app-users *ngIf="activeTab === 'users'"></app-users>
+    <app-roles *ngIf="activeTab === 'roles'"></app-roles>
+  </div>
+</div>
