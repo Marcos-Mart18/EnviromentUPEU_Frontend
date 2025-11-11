@@ -8,11 +8,12 @@ import { UserProfileDTO } from '../../../core/models/user.model';
 import { AuthUserDTO, CreateAuthUserRequest, UpdateAuthUserRequest } from '../../../core/models/auth.model';
 import { RoleService } from '../../../core/services/role.service';
 import { RoleDTO } from '../../../core/models/role.model';
+import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, LoaderComponent],
   templateUrl: './user-detail.component.html',
 })
 export class UserDetailComponent implements OnInit {
@@ -26,6 +27,7 @@ export class UserDetailComponent implements OnInit {
   profile: UserProfileDTO | null = null;
 
   photoFile: File | null = null;
+  uploadingPhoto = false;
 
   authUser: AuthUserDTO | null = null;
   creatingAuth = false;
@@ -84,8 +86,10 @@ export class UserDetailComponent implements OnInit {
 
   uploadPhoto(): void {
     if (!this.profile || !this.photoFile) return;
+    this.uploadingPhoto = true;
     this.userService.updateProfilePicture(this.profile.id, this.photoFile).subscribe({
-      next: (p) => { this.profile = p; this.photoFile = null; },
+      next: (p) => { this.profile = p; this.photoFile = null; this.uploadingPhoto = false; },
+      error: () => { this.uploadingPhoto = false; }
     });
   }
 
