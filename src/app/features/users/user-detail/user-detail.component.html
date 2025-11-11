@@ -45,8 +45,8 @@
       <!-- Foto -->
       <div class="mt-5 grid md:grid-cols-3 gap-4 items-center">
         <div class="md:col-span-1">
-          <img *ngIf="profile?.photoUrl" [src]="profile?.photoUrl" alt="Foto" class="w-32 h-32 object-cover rounded-full border" />
-          <div *ngIf="!profile?.photoUrl" class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center text-slate-400">Sin foto</div>
+          <img *ngIf="profile?.profilePicture" [src]="profile?.profilePicture" alt="Foto" class="w-32 h-32 object-cover rounded-full border" />
+          <div *ngIf="!profile?.profilePicture" class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center text-slate-400">Sin foto</div>
         </div>
         <div class="md:col-span-2 grid md:grid-cols-3 gap-3 items-center">
           <input type="file" (change)="onPhotoSelected($event)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
@@ -105,8 +105,11 @@
             </span>
           </div>
           <div class="flex items-center gap-2">
-            <input [(ngModel)]="roleName" placeholder="ROLE o nombre (p.e. USER)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-            <button (click)="assignRole()" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background: #4f46e5">Asignar</button>
+            <select [(ngModel)]="roleName" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              <option [ngValue]="''">Seleccione un rol</option>
+              <option *ngFor="let r of roles" [ngValue]="r.name">{{ r.name }}</option>
+            </select>
+            <button (click)="assignRole()" [disabled]="!roleName" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background: #4f46e5">Asignar</button>
           </div>
         </div>
       </div>

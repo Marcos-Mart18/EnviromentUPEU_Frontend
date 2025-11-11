@@ -6,6 +6,8 @@ import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserProfileDTO } from '../../../core/models/user.model';
 import { AuthUserDTO, CreateAuthUserRequest, UpdateAuthUserRequest } from '../../../core/models/auth.model';
+import { RoleService } from '../../../core/services/role.service';
+import { RoleDTO } from '../../../core/models/role.model';
 
 @Component({
   selector: 'app-user-detail',
@@ -17,6 +19,7 @@ export class UserDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private roleService = inject(RoleService);
 
   profileId!: number;
   loading = false;
@@ -35,10 +38,12 @@ export class UserDetailComponent implements OnInit {
   e_isActive = true;
 
   roleName = '';
+  roles: RoleDTO[] = [];
 
   ngOnInit(): void {
     this.profileId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadData();
+    this.loadRoles();
   }
 
   loadData(): void {
@@ -46,6 +51,7 @@ export class UserDetailComponent implements OnInit {
     this.userService.getUser(this.profileId).subscribe({
       next: (p) => {
         this.profile = p;
+        console.log('Loaded profile:', p);
         this.loading = false;
       },
       error: () => {
@@ -53,7 +59,6 @@ export class UserDetailComponent implements OnInit {
         this.loading = false;
       }
     });
-
     this.loadAuthUser();
   }
 
@@ -70,7 +75,6 @@ export class UserDetailComponent implements OnInit {
         this.creatingAuth = true;
       }
     });
-    console.log('Loading auth user for profile ID:', this.profileId);
   }
 
   onPhotoSelected(evt: Event): void {
@@ -82,6 +86,13 @@ export class UserDetailComponent implements OnInit {
     if (!this.profile || !this.photoFile) return;
     this.userService.updateProfilePicture(this.profile.id, this.photoFile).subscribe({
       next: (p) => { this.profile = p; this.photoFile = null; },
+    });
+  }
+
+  loadRoles(): void {
+    this.roleService.listRoles().subscribe({
+      next: (rs) => { this.roles = rs; },
+      error: () => { this.roles = []; }
     });
   }
 

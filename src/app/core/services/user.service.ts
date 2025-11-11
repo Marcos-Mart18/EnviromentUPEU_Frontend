@@ -84,7 +84,7 @@ export class UserService {
       address: raw?.address ?? '',
       dob: raw?.dob ?? raw?.birthDate ?? raw?.birth_date ?? '',
       isActive: (raw?.isActive ?? raw?.active ?? raw?.estado) ?? false,
-      photoUrl: raw?.photoUrl ?? raw?.profilePictureUrl ?? raw?.profile_picture_url,
+      profilePicture: raw?.profilePicture ?? raw?.profilePictureUrl ?? raw?.profile_picture_url ?? raw?.photoUrl,
     } as UserProfileDTO;
   }
 }

@@ -7,7 +7,7 @@ export interface UserProfileDTO {
   address: string;
   dob: string; // YYYY-MM-DD
   isActive: boolean;
-  photoUrl?: string;
+  profilePicture?: string;
 }
 
 export interface CreateUserProfileDTO {
