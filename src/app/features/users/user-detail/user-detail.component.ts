@@ -138,14 +138,17 @@ export class UserDetailComponent implements OnInit {
   assignRole(): void {
     if (!this.authUser || !this.roleName) return;
     this.authService.assignRoleToUser(this.authUser.id, this.roleName).subscribe({
-      next: (u) => { this.authUser = u; this.roleName = ''; },
+      next: () => {
+        this.roleName = '';
+        this.loadAuthUser();
+      },
     });
   }
 
   removeRole(name: string): void {
     if (!this.authUser) return;
     this.authService.removeRoleFromUser(this.authUser.id, name).subscribe({
-      next: (u) => { this.authUser = u; },
+      next: () => { this.loadAuthUser(); },
     });
   }
 }
