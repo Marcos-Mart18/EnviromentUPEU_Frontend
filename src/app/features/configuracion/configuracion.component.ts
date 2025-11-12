@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UpdateUserProfileDTO, UserProfileDTO } from '../../core/models/user.model';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-configuracion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './configuracion.component.html',
   styleUrls: ['./configuracion.component.css']
 })
@@ -18,6 +19,7 @@ export class ConfiguracionComponent implements OnInit {
 
   profileId: number | null = null;
   loading = false;
+  uploadingPhoto = false;
 
   names = '';
   lastName = '';
@@ -26,6 +28,8 @@ export class ConfiguracionComponent implements OnInit {
   address = '';
   dob = '';
   isActive = true;
+  profilePicture: string | undefined = undefined;
+  saveSuccess = false;
 
   photoFile: File | null = null;
 
@@ -48,6 +52,7 @@ export class ConfiguracionComponent implements OnInit {
         this.address = p.address;
         this.dob = p.dob;
         this.isActive = p.isActive;
+        this.profilePicture = p.profilePicture;
         this.loading = false;
       },
       error: () => {
@@ -67,7 +72,12 @@ export class ConfiguracionComponent implements OnInit {
       dob: this.dob,
       isActive: this.isActive,
     };
-    this.userService.updateUser(this.profileId, dto).subscribe();
+    this.userService.updateUser(this.profileId, dto).subscribe({
+      next: () => {
+        this.saveSuccess = true;
+        setTimeout(() => (this.saveSuccess = false), 3000);
+      }
+    });
   }
 
   onPhotoSelected(evt: Event): void {
@@ -77,9 +87,15 @@ export class ConfiguracionComponent implements OnInit {
 
   uploadPhoto(): void {
     if (this.profileId == null || !this.photoFile) return;
+    this.uploadingPhoto = true;
     this.userService.updateProfilePicture(this.profileId, this.photoFile).subscribe({
       next: () => {
         this.photoFile = null;
+        this.loadProfile(this.profileId!);
+        this.uploadingPhoto = false;
+      },
+      error: () => {
+        this.uploadingPhoto = false;
       }
     });
   }
