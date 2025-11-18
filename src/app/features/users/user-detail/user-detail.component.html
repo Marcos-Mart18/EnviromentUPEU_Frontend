@@ -1,0 +1,118 @@
+<div class="mx-auto max-w-5xl px-6 py-8">
+  <a routerLink="/main/user-management" class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Volver a usuarios
+  </a>
+
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Detalle de Usuario</h1>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Perfil -->
+    <section class="md:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-base font-semibold mb-3">Perfil</h2>
+      <div *ngIf="profile; else loadingProfile" class="grid md:grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs text-slate-500">Nombres</div>
+          <div class="font-medium">{{ profile.names }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500">Apellidos</div>
+          <div class="font-medium">{{ profile.lastName }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500">Email</div>
+          <div class="font-medium">{{ profile.email }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500">Teléfono</div>
+          <div class="font-medium">{{ profile.phoneNumber }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500">Dirección</div>
+          <div class="font-medium">{{ profile.address }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500">Fecha de Nacimiento</div>
+          <div class="font-medium">{{ profile.dob }}</div>
+        </div>
+      </div>
+      <ng-template #loadingProfile>
+        <div class="text-sm text-slate-500">Cargando perfil...</div>
+      </ng-template>
+
+      <!-- Foto -->
+      <div class="mt-5 grid md:grid-cols-3 gap-4 items-center">
+        <div class="md:col-span-1">
+          <img *ngIf="profile?.profilePicture" [src]="profile?.profilePicture" alt="Foto" class="w-32 h-32 object-cover rounded-full border" />
+          <div *ngIf="!profile?.profilePicture" class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center text-slate-400">Sin foto</div>
+        </div>
+        <div class="md:col-span-2 grid md:grid-cols-3 gap-3 items-center">
+          <input type="file" (change)="onPhotoSelected($event)" [disabled]="uploadingPhoto" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <button (click)="uploadPhoto()" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" [class.opacity-50]="!photoFile || uploadingPhoto" [disabled]="!photoFile || uploadingPhoto" style="background: #4f46e5">Subir foto</button>
+          <app-loader *ngIf="uploadingPhoto" message="Subiendo foto..."></app-loader>
+        </div>
+      </div>
+    </section>
+
+    <!-- Autenticación -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-base font-semibold mb-3">Autenticación</h2>
+
+      <!-- Crear credenciales -->
+      <div *ngIf="creatingAuth">
+        <div class="grid gap-3">
+          <input [(ngModel)]="c_username" placeholder="Usuario" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input [(ngModel)]="c_password" placeholder="Contraseña" type="password" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div class="flex items-center gap-3 mt-4">
+          <button (click)="createAuth()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Crear credenciales</button>
+        </div>
+      </div>
+
+      <!-- Editar credenciales -->
+      <div *ngIf="!creatingAuth && authUser">
+        <div class="space-y-2 text-sm">
+          <div><span class="text-slate-500">Usuario:</span> <span class="font-medium">{{ authUser.username }}</span></div>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500">Estado:</span>
+            <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="authUser.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">{{ authUser.isActive ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+        </div>
+        <div class="grid gap-3 mt-4">
+          <input [(ngModel)]="e_username" placeholder="Nuevo usuario (opcional)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label class="inline-flex items-center gap-2 text-sm text-slate-600">
+            <input type="checkbox" [(ngModel)]="e_isActive" class="rounded border-slate-300 text-slate-600" /> Activo
+          </label>
+        </div>
+        <div class="flex items-center gap-3 mt-3">
+          <button (click)="updateAuth()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Actualizar</button>
+          <button (click)="deleteAuth()" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background: #ef4444">Eliminar credenciales</button>
+        </div>
+
+        <!-- Roles -->
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold mb-2">Roles</h3>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <span *ngFor="let r of authUser?.roles" class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs">
+              {{ r.name }}
+              <button (click)="removeRole(r.name)" title="Quitar" class="text-slate-600 hover:text-red-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <select [(ngModel)]="roleName" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              <option [ngValue]="''">Seleccione un rol</option>
+              <option *ngFor="let r of roles" [ngValue]="r.name">{{ r.name }}</option>
+            </select>
+            <button (click)="assignRole()" [disabled]="!roleName" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background: #4f46e5">Asignar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

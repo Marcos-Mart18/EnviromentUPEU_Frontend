@@ -24,6 +24,9 @@ import { ResourceCategoryComponent } from './features/resource-screen/resource-c
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { UsersComponent } from './features/users/users.component';
+import { UserDetailComponent } from './features/users/user-detail/user-detail.component';
+import { UserManagementComponent } from './features/user-management/user-management.component';
+import { ResourceEnvComponent } from './features/resource-env/resource-env.component';
 
 export const routes: Routes = [
     {
@@ -52,6 +55,8 @@ export const routes: Routes = [
         { path: 'notificaciones', component: NotificacionesComponent },
         { path: 'configuracion', component: ConfiguracionComponent },
         { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
+        { path: 'users/:id', component: UserDetailComponent, canActivate: [adminGuard] },
+        { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
         
         // Env-creation con rutas hijas
         {
@@ -78,6 +83,7 @@ export const routes: Routes = [
                 { path: 'categories', component: ResourceCategoryComponent },
             ]
         },
+        { path: 'res-assign', component: ResourceEnvComponent },
         ],
     },
 

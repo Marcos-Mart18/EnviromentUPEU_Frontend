@@ -1,24 +1,31 @@
-import { Role } from './auth.model';
-
-export interface UserDTO {
+export interface UserProfileDTO {
   id: number;
-  username: string;
+  names: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  dob: string; // YYYY-MM-DD
   isActive: boolean;
-  userProfileId: number;
-  roles: Role[];
+  profilePicture?: string;
 }
 
-export interface CreateUserDTO {
-  username: string;
-  password: string;
-  userProfileId: number;
-  roles?: number[]; // role IDs if backend supports
+export interface CreateUserProfileDTO {
+  names: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  dob: string; // YYYY-MM-DD
+  isActive: boolean;
 }
 
-export interface UpdateUserDTO {
-  username?: string;
-  password?: string;
+export interface UpdateUserProfileDTO {
+  names?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: string;
+  dob?: string; // YYYY-MM-DD
   isActive?: boolean;
-  userProfileId?: number;
-  roles?: number[]; // role IDs if backend supports
 }

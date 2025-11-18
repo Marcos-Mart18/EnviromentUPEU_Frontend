@@ -1,0 +1,85 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Roles</h1>
+
+  <!-- Crear rol -->
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Crear Rol</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input [(ngModel)]="r_name" placeholder="Nombre" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <label class="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" [(ngModel)]="r_isActive" class="rounded border-slate-300 text-slate-600" />
+        Activo
+      </label>
+      <div></div>
+    </div>
+    <div class="flex items-center gap-3 mt-4">
+      <button (click)="create()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Guardar</button>
+    </div>
+  </section>
+
+  <!-- Lista de roles -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Lista de Roles</h2>
+    </div>
+
+    <div class="mt-4">
+      <div class="relative overflow-x-auto">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3">#</th>
+              <th scope="col" class="px-6 py-3">Nombre</th>
+              <th scope="col" class="px-6 py-3">Estado</th>
+              <th scope="col" class="px-6 py-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of roles; let i = index" class="bg-white border-b border-gray-200">
+              <td class="px-6 py-4">{{ i + 1 }}</td>
+              <td class="px-6 py-4">{{ r.name }}</td>
+              <td class="px-6 py-4">
+                <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="r.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
+                  {{ r.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button (click)="startEdit(r)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button (click)="remove(r)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!isLoading && roles.length === 0">
+              <td colspan="4" class="px-6 py-6 text-center text-sm text-slate-500">No hay roles registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Editar rol -->
+  <section *ngIf="editingId != null" class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Editar Rol</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input [(ngModel)]="e_name" placeholder="Nombre" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <label class="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" [(ngModel)]="e_isActive" class="rounded border-slate-300 text-slate-600" />
+        Activo
+      </label>
+    </div>
+    <div class="flex items-center gap-3 mt-4">
+      <button (click)="save()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Actualizar</button>
+      <button (click)="cancel()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #fca5a5">Cancelar</button>
+    </div>
+  </section>
+</div>
