@@ -16,6 +16,27 @@ export interface User {
   roles: Role[];
 }
 
+export interface AuthUserDTO {
+  id: number;
+  username: string;
+  isActive: boolean;
+  userProfileId: number;
+  roles: Role[];
+}
+
+export interface CreateAuthUserRequest {
+  username: string;
+  password: string;
+  userProfileId: number;
+}
+
+export interface UpdateAuthUserRequest {
+  username?: string;
+  password?: string;
+  isActive?: boolean;
+  userProfileId?: number;
+}
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
