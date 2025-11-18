@@ -26,6 +26,7 @@ import { adminGuard } from './core/guards/admin.guard';
 import { UsersComponent } from './features/users/users.component';
 import { UserDetailComponent } from './features/users/user-detail/user-detail.component';
 import { UserManagementComponent } from './features/user-management/user-management.component';
+import { ResourceEnvComponent } from './features/resource-env/resource-env.component';
 
 export const routes: Routes = [
     {
@@ -82,6 +83,7 @@ export const routes: Routes = [
                 { path: 'categories', component: ResourceCategoryComponent },
             ]
         },
+        { path: 'res-assign', component: ResourceEnvComponent },
         ],
     },
 
