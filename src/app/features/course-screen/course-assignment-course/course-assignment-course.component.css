@@ -1,0 +1,40 @@
+.container {
+  padding: 12px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.list {
+  list-style: none;
+  padding: 0;
+}
+.list li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+.muted {
+  color: #666;
+  margin-left: 8px;
+}
+.edit-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.confirm {
+  background: #fff3cd;
+  padding: 8px;
+  border: 1px solid #ffeeba;
+  margin-top: 8px;
+}
+.toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: #333;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+}

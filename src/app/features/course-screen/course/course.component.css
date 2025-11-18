@@ -1,0 +1,140 @@
+.page {
+  padding: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.header h2 {
+  margin: 0;
+}
+.back {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+}
+.create {
+  border: 1px solid #e6e6e6;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.form-row label {
+  min-width: 90px;
+}
+.form-actions {
+  text-align: right;
+}
+.list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.list th,
+.list td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+.confirm-popup {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  width: 224px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+}
+.toast {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  background: #333;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+/* Additional helpers to better match faculty layout */
+.rounded-2xl {
+  border-radius: 1rem;
+}
+.border-slate-200 {
+  border-color: #e6e6f0;
+}
+.bg-white {
+  background: #fff;
+}
+.p-5 {
+  padding: 1.25rem;
+}
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.text-slate-800 {
+  color: #0f172a;
+}
+.text-slate-500 {
+  color: #6b7280;
+}
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.w-full {
+  width: 100%;
+}
+.table-auto {
+  table-layout: auto;
+}
+.text-sm {
+  font-size: 0.875rem;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.uppercase {
+  text-transform: uppercase;
+}
+.tracking-wide {
+  letter-spacing: 0.02em;
+}
+.bg-slate-50 {
+  background: #f8fafc;
+}
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+.max-w-4xl {
+  max-width: 64rem;
+}
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}

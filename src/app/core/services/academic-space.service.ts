@@ -8,7 +8,7 @@ import { AcademicSpace } from '../models/academic-space';
   providedIn: 'root',
 })
 export class AcademicSpaceService {
-  private apiUrl = `${environment.apiUrl}/api/environments/v1/api/academic-space`;
+  private apiUrl = `${environment.apiUrl}/environments/v1/api/academic-space`;
   constructor(private http: HttpClient) {}
 
   getAcademicSpaces(): Observable<AcademicSpace[]> {

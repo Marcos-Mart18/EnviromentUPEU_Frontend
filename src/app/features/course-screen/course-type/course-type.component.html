@@ -1,5 +1,4 @@
 <div class="mx-auto max-w-4xl px-6 py-8">
-  <!-- Toast top-right -->
   <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
     <div
       class="toast rounded-md bg-emerald-600 px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
@@ -15,7 +14,6 @@
     </div>
   </div>
 
-  <!-- floating confirm popup positioned near the clicked button (avoids clipping) -->
   <div
     *ngIf="pendingDeleteId && popupStyle"
     [ngStyle]="popupStyle"
@@ -44,7 +42,6 @@
     </div>
   </div>
 
-  <!-- Confirmación de eliminación se muestra inline por fila -->
   <button
     (click)="volver()"
     class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
@@ -60,16 +57,17 @@
     Volver a opciones
   </button>
 
-  <h1 class="text-2xl font-bold text-slate-800 mb-4">Estados</h1>
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Tipos de curso</h1>
+
   <section
     class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
   >
-    <h2 class="text-base font-semibold mb-3">Crear Estado</h2>
+    <h2 class="text-base font-semibold mb-3">Crear Tipo</h2>
     <div class="flex gap-3">
       <input
         type="text"
         [(ngModel)]="name"
-        placeholder="Nombre del estado"
+        placeholder="Nombre del tipo"
         class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
       />
       <button
@@ -83,7 +81,7 @@
   </section>
 
   <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-    <h2 class="text-base font-semibold mb-3">Listado</h2>
+    <h2 class="text-base font-semibold mb-3">Lista de Tipos</h2>
     <div class="overflow-x-auto">
       <table class="w-full table-auto text-left">
         <thead class="bg-slate-50">
@@ -92,87 +90,46 @@
           >
             <th class="px-4 py-3">#</th>
             <th class="px-4 py-3">Nombre</th>
-            <th class="px-4 py-3">Estado</th>
             <th class="px-4 py-3">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr
-            *ngFor="let s of states; let i = index"
+            *ngFor="let t of items; let i = index"
             class="border-t border-slate-100 text-sm text-slate-700"
           >
             <td class="px-4 py-3">{{ i + 1 }}</td>
             <td class="px-4 py-3">
-              <ng-container *ngIf="editingId !== s.id_state; else editName">
-                {{ s.name }}
-              </ng-container>
+              <ng-container
+                *ngIf="editingId !== t.idCourseType; else editName"
+                >{{ t.name }}</ng-container
+              >
               <ng-template #editName>
                 <input
                   [(ngModel)]="editingName"
-                  class="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                  class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 />
               </ng-template>
             </td>
             <td class="px-4 py-3">
-              <button
-                (click)="toggleState(s)"
-                class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold"
-                [ngClass]="estadoChipClasses(s.is_active)"
-                title="Alternar estado"
-              >
-                <span
-                  class="inline-block h-2 w-2 rounded-full"
-                  [class.bg-green-500]="s.is_active === 'A'"
-                  [class.bg-gray-500]="s.is_active !== 'A'"
-                ></span>
-                {{ s.is_active === "A" ? "Activo" : "Inactivo" }}
-              </button>
-            </td>
-            <td class="px-4 py-3">
               <div class="flex items-center gap-3 relative">
                 <ng-container
-                  *ngIf="editingId !== s.id_state; else editingActions"
+                  *ngIf="editingId !== t.idCourseType; else editingActions"
                 >
                   <button
-                    (click)="edit(s)"
+                    (click)="edit(t)"
                     title="Editar"
                     class="text-slate-600 hover:text-emerald-700"
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
-                      />
-                    </svg>
+                    Editar
                   </button>
                   <button
-                    (click)="confirmRemove(s, $event)"
+                    (click)="confirmRemove(t, $event)"
                     title="Eliminar"
                     class="text-slate-600 hover:text-red-600"
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12"
-                      />
-                    </svg>
+                    Eliminar
                   </button>
-
-                  <!-- confirm popup moved to floating fixed element to avoid clipping -->
                 </ng-container>
                 <ng-template #editingActions>
                   <button
@@ -180,49 +137,25 @@
                     title="Guardar cambios"
                     class="text-green-600 hover:text-green-800"
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    Guardar
                   </button>
                   <button
                     (click)="cancel()"
                     title="Cancelar"
                     class="text-slate-600 hover:text-gray-800"
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    Cancelar
                   </button>
                 </ng-template>
               </div>
             </td>
           </tr>
-          <tr *ngIf="states.length === 0">
+          <tr *ngIf="items.length === 0">
             <td
-              colspan="4"
+              colspan="3"
               class="px-4 py-6 text-center text-sm text-slate-500"
             >
-              Sin registros
+              No hay tipos disponibles
             </td>
           </tr>
         </tbody>
