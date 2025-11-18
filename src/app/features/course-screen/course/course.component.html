@@ -1,0 +1,421 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
+    <div
+      class="toast rounded-md bg-emerald-600 px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
+    >
+      <span>{{ toastMessage }}</span>
+      <button
+        *ngIf="toastHasUndo && lastDeleted"
+        (click)="undoDelete()"
+        class="underline text-sm"
+      >
+        Deshacer
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="pendingDeleteId && popupStyle"
+    [ngStyle]="popupStyle"
+    class="confirm-popup z-50 w-56 rounded-md border border-slate-200 bg-white p-3 shadow-lg"
+  >
+    <div class="text-sm font-semibold text-slate-800">
+      ¿Seguro que quieres eliminar?
+    </div>
+    <div class="mt-1 text-sm text-slate-600">
+      Se eliminará: <strong>{{ pendingDeleteName }}</strong>
+    </div>
+    <div class="mt-3 flex gap-2 justify-end">
+      <button
+        (click)="performDeleteConfirmed()"
+        class="rounded px-3 py-1 text-sm font-semibold text-white"
+        style="background: #ef4444"
+      >
+        Eliminar
+      </button>
+      <button
+        (click)="cancelRemove()"
+        class="rounded px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      ></path>
+    </svg>
+    Volver a opciones
+  </button>
+
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Cursos</h1>
+
+  <section
+    class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="text-base font-semibold mb-3">Crear Curso</h2>
+    <div class="flex flex-wrap gap-3">
+      <input
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Nombre del Curso"
+        class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <input
+        type="text"
+        [(ngModel)]="code"
+        placeholder="Código"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <input
+        type="text"
+        [(ngModel)]="description"
+        placeholder="Descripción"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+    </div>
+    <div class="mt-3 flex flex-wrap gap-3">
+      <div class="flex items-center gap-2">
+        <label class="text-sm">Duración:</label>
+        <input
+          type="number"
+          [(ngModel)]="durationHoursInput"
+          min="0"
+          class="w-20 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">h</span>
+        <input
+          type="number"
+          [(ngModel)]="durationMinutesInput"
+          min="0"
+          max="59"
+          class="w-20 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">m</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm">Prácticas:</label>
+        <input
+          type="number"
+          [(ngModel)]="practicalHoursInput"
+          min="0"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">h</span>
+        <input
+          type="number"
+          [(ngModel)]="practicalMinutesInput"
+          min="0"
+          max="59"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">m</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm">Teóricas:</label>
+        <input
+          type="number"
+          [(ngModel)]="theoreticalHoursInput"
+          min="0"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">h</span>
+        <input
+          type="number"
+          [(ngModel)]="theoreticalMinutesInput"
+          min="0"
+          max="59"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">m</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm">Total:</label>
+        <input
+          type="number"
+          [(ngModel)]="totalHoursInput"
+          min="0"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">h</span>
+        <input
+          type="number"
+          [(ngModel)]="totalMinutesInput"
+          min="0"
+          max="59"
+          class="w-16 rounded-lg border px-2 py-1 text-sm"
+        />
+        <span class="text-sm">m</span>
+      </div>
+    </div>
+    <div class="mt-3 flex gap-3">
+      <select
+        [(ngModel)]="selectedTypeId"
+        class="rounded-lg border px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">-- Tipo --</option>
+        <option *ngFor="let t of types" [ngValue]="t.idCourseType">
+          {{ t.name }}
+        </option>
+      </select>
+      <select
+        [(ngModel)]="selectedGroupId"
+        class="rounded-lg border px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">-- Grupo --</option>
+        <option *ngFor="let g of groups" [ngValue]="g.idGroup">
+          {{ g.groupNumber }}
+        </option>
+      </select>
+      <select
+        [(ngModel)]="selectedPlanId"
+        class="rounded-lg border px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">-- Plan --</option>
+        <option *ngFor="let p of plans" [ngValue]="p.idPlan">
+          {{ p.name }}
+        </option>
+      </select>
+      <button
+        (click)="create()"
+        class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #bfc621"
+      >
+        Guardar
+      </button>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Lista de Cursos</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Código</th>
+            <th class="px-4 py-3">Tipo</th>
+            <th class="px-4 py-3">Grupo</th>
+            <th class="px-4 py-3">Plan</th>
+            <th class="px-4 py-3">Duración</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let it of items; let i = index"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editingId !== it.idCourse; else editName">{{
+                it.name
+              }}</ng-container>
+              <ng-template #editName>
+                <input
+                  [(ngModel)]="editingName"
+                  class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editingId !== it.idCourse; else editCode">{{
+                it.code
+              }}</ng-container>
+              <ng-template #editCode>
+                <input
+                  [(ngModel)]="editingCode"
+                  class="rounded-lg border border-slate-300 px-2 py-1 text-sm"
+                />
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editingId !== it.idCourse; else editType">{{
+                it.courseType.name
+              }}</ng-container>
+              <ng-template #editType>
+                <select
+                  [(ngModel)]="editingTypeId"
+                  class="rounded-lg border px-2 py-1 text-sm"
+                >
+                  <option [ngValue]="null">-- Tipo --</option>
+                  <option *ngFor="let t of types" [ngValue]="t.idCourseType">
+                    {{ t.name }}
+                  </option>
+                </select>
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editingId !== it.idCourse; else editGroup">{{
+                it.group.groupNumber
+              }}</ng-container>
+              <ng-template #editGroup>
+                <select
+                  [(ngModel)]="editingGroupId"
+                  class="rounded-lg border px-2 py-1 text-sm"
+                >
+                  <option [ngValue]="null">-- Grupo --</option>
+                  <option *ngFor="let g of groups" [ngValue]="g.idGroup">
+                    {{ g.groupNumber }}
+                  </option>
+                </select>
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <ng-container *ngIf="editingId !== it.idCourse; else editPlan">{{
+                it.plan.name
+              }}</ng-container>
+              <ng-template #editPlan>
+                <select
+                  [(ngModel)]="editingPlanId"
+                  class="rounded-lg border px-2 py-1 text-sm"
+                >
+                  <option [ngValue]="null">-- Plan --</option>
+                  <option *ngFor="let p of plans" [ngValue]="p.idPlan">
+                    {{ p.name }}
+                  </option>
+                </select>
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <ng-container
+                *ngIf="editingId !== it.idCourse; else editDuration"
+              >
+                {{ formatMinutes(it.duration) }}
+              </ng-container>
+              <ng-template #editDuration>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="number"
+                      [(ngModel)]="editingDurationHours"
+                      min="0"
+                      class="w-16 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-sm">h</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingDurationMinutes"
+                      min="0"
+                      max="59"
+                      class="w-16 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-sm">m</span>
+                  </div>
+                  <div class="text-xs text-slate-600">
+                    Prácticas / Teóricas / Total
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="number"
+                      [(ngModel)]="editingPracticalHours"
+                      min="0"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">h</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingPracticalMinutes"
+                      min="0"
+                      max="59"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">m</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingTheoreticalHours"
+                      min="0"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">h</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingTheoreticalMinutes"
+                      min="0"
+                      max="59"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">m</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingTotalHours"
+                      min="0"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">h</span>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingTotalMinutes"
+                      min="0"
+                      max="59"
+                      class="w-12 rounded-lg border px-2 py-1 text-sm"
+                    />
+                    <span class="text-xs">m</span>
+                  </div>
+                </div>
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3 relative">
+                <ng-container
+                  *ngIf="editingId !== it.idCourse; else editingActions"
+                >
+                  <button
+                    (click)="edit(it)"
+                    title="Editar"
+                    class="text-slate-600 hover:text-emerald-700"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="confirmRemove(it, $event)"
+                    title="Eliminar"
+                    class="text-slate-600 hover:text-red-600"
+                  >
+                    Eliminar
+                  </button>
+                </ng-container>
+                <ng-template #editingActions>
+                  <button
+                    (click)="save()"
+                    title="Guardar cambios"
+                    class="text-green-600 hover:text-green-800"
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    (click)="cancel()"
+                    title="Cancelar"
+                    class="text-slate-600 hover:text-gray-800"
+                  >
+                    Cancelar
+                  </button>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="items.length === 0">
+            <td
+              colspan="7"
+              class="px-4 py-6 text-center text-sm text-slate-500"
+            >
+              No hay cursos disponibles
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

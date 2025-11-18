@@ -9,13 +9,13 @@ import { Floor } from '../models/floor';
   providedIn: 'root',
 })
 export class BuildingService {
-  private apiUrl = `${environment.apiUrl}/api/environments/v1/api/building`;
+  private apiUrl = `${environment.apiUrl}/environments/v1/api/building`;
   constructor(private http: HttpClient) {}
 
   getBuildings(): Observable<Building[]> {
     return this.http.get<Building[]>(this.apiUrl);
   }
-  getBuildingById(id: number | string): Observable<Building> {
+  getBuildingById(id: number): Observable<Building> {
     return this.http.get<Building>(`${this.apiUrl}/${id}`);
   }
 
@@ -30,7 +30,7 @@ export class BuildingService {
     return this.http.post<Building>(this.apiUrl, body);
   }
   updateBuilding(
-    id: number | string,
+    id: number,
     body: { name: string; is_active: string }
   ): Observable<Building> {
     return this.http.put<Building>(`${this.apiUrl}/${id}`, body);
