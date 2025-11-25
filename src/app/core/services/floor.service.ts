@@ -8,7 +8,7 @@ import { Floor } from '../models/floor';
   providedIn: 'root',
 })
 export class FloorService {
-  private apiUrl = `${environment.apiUrl}/api/environments/v1/api/floor`;
+  private apiUrl = `${environment.apiUrl}/environments/v1/api/floor`;
   constructor(private http: HttpClient) {}
 
   getFloors(): Observable<Floor[]> {

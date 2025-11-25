@@ -8,7 +8,7 @@ import { State } from '../models/state';
   providedIn: 'root',
 })
 export class StateService {
-  private apiUrl = `${environment.apiUrl}/api/environments/v1/api/state`;
+  private apiUrl = `${environment.apiUrl}/environments/v1/api/state`;
   constructor(private http: HttpClient) {}
 
   getStates(): Observable<State[]> {

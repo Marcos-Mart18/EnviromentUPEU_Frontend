@@ -347,6 +347,8 @@ export class AmbienteComponent implements OnInit {
   private lastBuildingId: number | null = null;
   // filtro para la tabla
   filtroBuildingId: number | null = null;
+  // búsqueda por nombre
+  search = '';
 
   // --- Resúmenes (con “últimos 30 días”) ---
   prevTotal30d = 68; // para ~+10% al redondear
@@ -503,8 +505,15 @@ export class AmbienteComponent implements OnInit {
 
   // Ambientes filtrados para la tabla (por pabellón si aplica)
   get ambientesFiltrados(): AmbienteView[] {
-    if (this.filtroBuildingId == null) return this.ambientes;
-    return this.ambientes.filter((a) => a.buildingId === this.filtroBuildingId);
+    let list = this.ambientes.slice();
+    if (this.filtroBuildingId != null) {
+      list = list.filter((a) => a.buildingId === this.filtroBuildingId);
+    }
+    const q = (this.search || '').trim().toLowerCase();
+    if (q) {
+      list = list.filter((a) => (a.nombre || '').toLowerCase().includes(q));
+    }
+    return list;
   }
 
   onFormChange(): void {

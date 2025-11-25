@@ -249,18 +249,28 @@
       Ambientes Existentes
     </h2>
 
-    <!-- filtro por pabellón -->
+    <!-- búsqueda y filtro por pabellón -->
     <div class="mb-4 flex items-center gap-3">
-      <label class="text-sm text-slate-700">Filtrar por Pabellón:</label>
-      <select
-        [(ngModel)]="filtroBuildingId"
-        class="rounded-lg border border-slate-300 px-3 py-1 text-sm"
-      >
-        <option [ngValue]="null">Todos</option>
-        <option *ngFor="let b of buildings" [ngValue]="b.id_building">
-          {{ b.name }}
-        </option>
-      </select>
+      <div class="flex-1">
+        <input
+          type="text"
+          [(ngModel)]="search"
+          placeholder="Buscar por nombre de ambiente..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+        />
+      </div>
+      <div>
+        <label class="text-sm text-slate-700 mr-2">Filtrar por Pabellón:</label>
+        <select
+          [(ngModel)]="filtroBuildingId"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-sm"
+        >
+          <option [ngValue]="null">Todos</option>
+          <option *ngFor="let b of buildings" [ngValue]="b.id_building">
+            {{ b.name }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">

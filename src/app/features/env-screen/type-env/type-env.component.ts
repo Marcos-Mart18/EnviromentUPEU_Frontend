@@ -17,13 +17,13 @@ export class TypeEnvComponent implements OnInit {
   nuevoNombre = '';
   editandoId?: number | null = null;
   search = '';
-  
+
   // para confirmar eliminación
   pendingDeleteId?: number | null = null;
   pendingDeleteName = '';
   lastDeleted?: TypeAcademicSpace | null = null;
   popupStyle: { [k: string]: string } | null = null;
-  
+
   // toast
   showToast = false;
   toastMessage = '';
@@ -77,10 +77,18 @@ export class TypeEnvComponent implements OnInit {
         next: () => {
           this.cargarTipos();
           this.resetForm();
-          this.showTransientToast('Tipo de ambiente creado correctamente', 3000, false);
+          this.showTransientToast(
+            'Tipo de ambiente creado correctamente',
+            3000,
+            false
+          );
         },
         error: () => {
-          this.showTransientToast('Error al crear tipo de ambiente', 3000, false);
+          this.showTransientToast(
+            'Error al crear tipo de ambiente',
+            3000,
+            false
+          );
         },
       });
   }
@@ -88,23 +96,25 @@ export class TypeEnvComponent implements OnInit {
   toggleEstado(t: TypeAcademicSpace): void {
     if (!t || t.id_type_academic_space == null) return;
     const newStatus = t.is_active === 'A' ? 'I' : 'A';
-    
-    this.env.updateTypeAcademicSpace(t.id_type_academic_space, { 
-      name: t.name, 
-      is_active: newStatus 
-    }).subscribe({
-      next: () => {
-        t.is_active = newStatus;
-        this.showTransientToast(
-          `Estado cambiado a ${newStatus === 'A' ? 'Activo' : 'Inactivo'}`,
-          3000,
-          false
-        );
-      },
-      error: () => {
-        this.showTransientToast('Error al cambiar el estado', 3000, false);
-      },
-    });
+
+    this.env
+      .updateTypeAcademicSpace(t.id_type_academic_space, {
+        name: t.name,
+        is_active: newStatus,
+      })
+      .subscribe({
+        next: () => {
+          t.is_active = newStatus;
+          this.showTransientToast(
+            `Estado cambiado a ${newStatus === 'A' ? 'Activo' : 'Inactivo'}`,
+            3000,
+            false
+          );
+        },
+        error: () => {
+          this.showTransientToast('Error al cambiar el estado', 3000, false);
+        },
+      });
   }
 
   editar(t: TypeAcademicSpace): void {
@@ -117,22 +127,30 @@ export class TypeEnvComponent implements OnInit {
     const nombre = this.nuevoNombre.trim();
     if (!nombre) return;
 
-    const tipo = this.tipos.find(t => t.id_type_academic_space === this.editandoId);
+    const tipo = this.tipos.find(
+      (t) => t.id_type_academic_space === this.editandoId
+    );
     if (!tipo) return;
 
-    this.env.updateTypeAcademicSpace(this.editandoId, {
-      name: nombre,
-      is_active: tipo.is_active
-    }).subscribe({
-      next: () => {
-        this.cargarTipos();
-        this.resetForm();
-        this.showTransientToast('Cambios guardados correctamente', 3000, false);
-      },
-      error: () => {
-        this.showTransientToast('Error al guardar los cambios', 3000, false);
-      },
-    });
+    this.env
+      .updateTypeAcademicSpace(this.editandoId, {
+        name: nombre,
+        is_active: tipo.is_active,
+      })
+      .subscribe({
+        next: () => {
+          this.cargarTipos();
+          this.resetForm();
+          this.showTransientToast(
+            'Cambios guardados correctamente',
+            3000,
+            false
+          );
+        },
+        error: () => {
+          this.showTransientToast('Error al guardar los cambios', 3000, false);
+        },
+      });
   }
 
   cancelarEdicion(): void {
@@ -187,7 +205,11 @@ export class TypeEnvComponent implements OnInit {
   confirmRemove(t: TypeAcademicSpace, ev?: MouseEvent): void {
     this.pendingDeleteId = t.id_type_academic_space ?? null;
     this.pendingDeleteName = t.name;
-    this.lastDeleted = new TypeAcademicSpace(t.name, t.is_active, t.id_type_academic_space);
+    this.lastDeleted = new TypeAcademicSpace(
+      t.name,
+      t.is_active,
+      t.id_type_academic_space
+    );
 
     try {
       const btn = ev?.currentTarget as HTMLElement | undefined;

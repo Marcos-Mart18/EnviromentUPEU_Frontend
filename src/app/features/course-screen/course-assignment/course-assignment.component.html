@@ -1,0 +1,164 @@
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <div *ngIf="showToast" class="fixed top-5 right-5 z-50">
+    <div
+      class="toast rounded-md bg-emerald-600 px-4 py-2 text-white shadow-sm inline-flex items-center gap-3"
+    >
+      <span>{{ toastMessage }}</span>
+      <button
+        *ngIf="toastHasUndo && lastDeleted"
+        (click)="undoDelete()"
+        class="underline text-sm"
+      >
+        Deshacer
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="pendingDeleteId && popupStyle"
+    [ngStyle]="popupStyle"
+    class="confirm-popup z-50 w-56 rounded-md border border-slate-200 bg-white p-3 shadow-lg"
+  >
+    <div class="text-sm font-semibold text-slate-800">
+      ¿Seguro que quieres eliminar?
+    </div>
+    <div class="mt-1 text-sm text-slate-600">
+      Se eliminará: <strong>{{ pendingDeleteName }}</strong>
+    </div>
+    <div class="mt-3 flex gap-2 justify-end">
+      <button
+        (click)="performDeleteConfirmed()"
+        class="rounded px-3 py-1 text-sm font-semibold text-white"
+        style="background: #ef4444"
+      >
+        Eliminar
+      </button>
+      <button
+        (click)="cancelRemove()"
+        class="rounded px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <button
+    (click)="volver()"
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+  >
+    Volver a opciones
+  </button>
+
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Asignaciones</h1>
+
+  <section
+    class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+  >
+    <h2 class="text-base font-semibold mb-3">Crear Asignación</h2>
+    <div class="flex gap-3">
+      <select
+        [(ngModel)]="selectedTeacherId"
+        class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null">-- Seleccione docente --</option>
+        <option *ngFor="let t of teachers" [ngValue]="t.idTeacher">
+          {{ t.name }} {{ t.lastName }}
+        </option>
+      </select>
+      <button
+        (click)="create()"
+        class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900"
+        style="background: #bfc621"
+      >
+        Guardar
+      </button>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Lista de Asignaciones</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto text-left">
+        <thead class="bg-slate-50">
+          <tr
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Docente</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let a of assignments; let i = index"
+            class="border-t border-slate-100 text-sm text-slate-700"
+          >
+            <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3">
+              <ng-container
+                *ngIf="editingId !== a.idCourseAssignment; else editTeacher"
+                >{{ a.teacher.name }} {{ a.teacher.lastName }}</ng-container
+              ><ng-template #editTeacher
+                ><select
+                  [(ngModel)]="editingTeacherId"
+                  class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                >
+                  <option [ngValue]="null">-- Seleccione docente --</option>
+                  <option *ngFor="let t of teachers" [ngValue]="t.idTeacher">
+                    {{ t.name }} {{ t.lastName }}
+                  </option>
+                </select></ng-template
+              >
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3 relative">
+                <ng-container
+                  *ngIf="
+                    editingId !== a.idCourseAssignment;
+                    else editingActions
+                  "
+                  ><button
+                    (click)="edit(a)"
+                    title="Editar"
+                    class="text-slate-600 hover:text-emerald-700"
+                  >
+                    ✎</button
+                  ><button
+                    (click)="confirmRemove(a, $event)"
+                    title="Eliminar"
+                    class="text-slate-600 hover:text-red-600"
+                  >
+                    🗑
+                  </button></ng-container
+                ><ng-template #editingActions
+                  ><button
+                    (click)="save()"
+                    title="Guardar cambios"
+                    class="text-green-600 hover:text-green-800"
+                  >
+                    ✔</button
+                  ><button
+                    (click)="cancel()"
+                    title="Cancelar"
+                    class="text-slate-600 hover:text-gray-800"
+                  >
+                    ✖
+                  </button></ng-template
+                >
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="assignments.length === 0">
+            <td
+              colspan="3"
+              class="px-4 py-6 text-center text-sm text-slate-500"
+            >
+              No hay asignaciones disponibles
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<p>course-assignment works!</p>

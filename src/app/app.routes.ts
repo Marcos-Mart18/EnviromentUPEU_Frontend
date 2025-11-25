@@ -27,26 +27,35 @@ import { UsersComponent } from './features/users/users.component';
 import { UserDetailComponent } from './features/users/user-detail/user-detail.component';
 import { UserManagementComponent } from './features/user-management/user-management.component';
 import { ResourceEnvComponent } from './features/resource-env/resource-env.component';
+import { CourseScreenComponent } from './features/course-screen/course-screen.component';
+import { FacultyComponent } from './features/course-screen/faculty/faculty.component';
+import { ProfessionalSchoolComponent } from './features/course-screen/professional-school/professional-school.component';
+import { CycleComponent } from './features/course-screen/cycle/cycle.component';
+import { GroupComponent } from './features/course-screen/group/group.component';
+import { CourseComponent } from './features/course-screen/course/course.component';
+import { TeacherComponent } from './features/course-screen/teacher/teacher.component';
+import { CourseTypeComponent } from './features/course-screen/course-type/course-type.component';
+import { PlanComponent } from './features/course-screen/plan/plan.component';
 
 export const routes: Routes = [
-    {
-        path: '',
-        component: AuthLayoutComponent,
-        children: [
-        { path: '', redirectTo: 'login', pathMatch: 'full' },
-        { path: 'login', component: LoginComponent },
-        { path: 'register', component: RegisterComponent },
-        ]
-    },
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+    ],
+  },
 
-    // Ruta independiente para register-success (pantalla completa)
-    { path: 'register-success', component: RegisterSuccessComponent },
+  // Ruta independiente para register-success (pantalla completa)
+  { path: 'register-success', component: RegisterSuccessComponent },
 
-    {
-        path: 'main',
-        component: MainComponent,
-        canActivate: [authGuard],
-        children: [
+  {
+    path: 'main',
+    component: MainComponent,
+    canActivate: [authGuard],
+    children: [
         { path: '', redirectTo: 'menu', pathMatch: 'full' },
         { path: 'menu', component: MenuComponent },
         { path: 'home', component: HomeComponent },
@@ -57,7 +66,8 @@ export const routes: Routes = [
         { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
         { path: 'users/:id', component: UserDetailComponent, canActivate: [adminGuard] },
         { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
-        
+         ],
+      },
         // Env-creation con rutas hijas
         {
             path: 'env-creation',
@@ -67,8 +77,8 @@ export const routes: Routes = [
                 { path: 'type-environment', component: TypeEnvComponent },
                 { path: 'buildings', component: BuildingComponent },
                 { path: 'floors', component: FloorComponent },
-              { path: 'states', component: StateComponent },
-              {path: 'resource-state', component: ResourcesStateComponent}
+                { path: 'states', component: StateComponent },
+                {path: 'resource-state', component: ResourcesStateComponent}
             ]
         },
         
@@ -84,9 +94,60 @@ export const routes: Routes = [
             ]
         },
         { path: 'res-assign', component: ResourceEnvComponent },
+       
+
+      // Res-creation con rutas hijas
+      {
+        path: 'res-creation',
+        component: ResourceScreenComponent,
+        children: [
+          { path: 'resources', component: ResourceComponent },
+          { path: 'states', component: ResourcesStateComponent },
+          { path: 'types', component: ResourceTypeComponent },
+          { path: 'categories', component: ResourceCategoryComponent },
         ],
-    },
+      },
 
+      {
+        path: 'course-creation',
+        component: CourseScreenComponent,
+        children: [
+          {
+            path: 'faculty',
+            component: FacultyComponent,
+          },
+          {
+            path: 'professional-school',
+            component: ProfessionalSchoolComponent,
+          },
+          {
+            path: 'cycle',
+            component: CycleComponent,
+          },
+          {
+            path: 'group',
+            component: GroupComponent,
+          },
+          {
+            path: 'course',
+            component: CourseComponent,
+          },
+          {
+            path: 'teacher',
+            component: TeacherComponent,
+          },
+          {
+            path: 'course-type',
+            component: CourseTypeComponent,
+          },
+          {
+            path: 'plan',
+            component: PlanComponent,
+          },
+        ],
+      },
+    ],
+  },
 
-    { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: '' },
 ];
