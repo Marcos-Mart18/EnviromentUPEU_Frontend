@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, switchMap, tap, map } from 'rxjs';
 import {
   LoginRequest,
   RegisterRequest,
@@ -10,7 +10,10 @@ import {
   LoginRememberResponseSnake,
   RefreshResponseSnake,
   LogoutRequestSnake,
-  User
+  User,
+  AuthUserDTO,
+  CreateAuthUserRequest,
+  UpdateAuthUserRequest
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 
@@ -198,5 +201,35 @@ export class AuthService {
    */
   public handleUnauthorized(): void {
     this.clearSession();
+  }
+
+  // =================== User Management (Auth) ===================
+  getAuthUser(id: number | string): Observable<AuthUserDTO> {
+    return this.http.get<AuthUserDTO>(`${this.API_URL}/users/${id}`);
+  }
+
+  // Optional helper (if backend supports it). If not, caller should ignore errors.
+  getAuthUserByProfileId(profileId: number | string): Observable<AuthUserDTO> {
+    return this.http.get<AuthUserDTO>(`${environment.apiUrl}/api/users/auth/by-profile/${profileId}`);
+  }
+
+  createAuthUser(payload: CreateAuthUserRequest): Observable<AuthUserDTO> {
+    return this.http.post<AuthUserDTO>(`${this.API_URL}/users`, payload);
+  }
+
+  updateAuthUser(id: number | string, payload: UpdateAuthUserRequest): Observable<AuthUserDTO> {
+    return this.http.put<AuthUserDTO>(`${this.API_URL}/users/${id}`, payload);
+  }
+
+  deleteAuthUser(id: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/users/${id}`);
+  }
+
+  assignRoleToUser(userId: number | string, roleName: string): Observable<AuthUserDTO> {
+    return this.http.post<AuthUserDTO>(`${this.API_URL}/users/${userId}/roles/${roleName}`, {});
+  }
+
+  removeRoleFromUser(userId: number | string, roleName: string): Observable<AuthUserDTO> {
+    return this.http.delete<AuthUserDTO>(`${this.API_URL}/users/${userId}/roles/${roleName}`);
   }
 }

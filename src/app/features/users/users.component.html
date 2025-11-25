@@ -1,59 +1,109 @@
-<div class="p-4 space-y-6">
-  <h2 class="text-xl font-semibold">Usuarios</h2>
+<div class="mx-auto max-w-4xl px-6 py-8">
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Usuarios</h1>
 
   <!-- Crear usuario -->
-  <div class="p-4 border rounded-lg space-y-3">
-    <h3 class="font-medium">Crear usuario</h3>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-      <input [(ngModel)]="c_username" placeholder="Username" class="border rounded p-2" />
-      <input [(ngModel)]="c_password" placeholder="Password" type="password" class="border rounded p-2" />
-      <input [(ngModel)]="c_userProfileId" placeholder="User Profile ID" type="number" class="border rounded p-2" />
-      <button (click)="create()" class="bg-green-600 text-white rounded px-4 py-2">Crear</button>
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Crear Usuario</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input [(ngModel)]="c_names" placeholder="Nombres" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="c_lastName" placeholder="Apellidos" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="c_email" placeholder="Email" type="email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="c_phoneNumber" placeholder="Teléfono" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="c_address" placeholder="Dirección" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="c_dob" placeholder="Fecha de nacimiento" type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
     </div>
-  </div>
+    <div class="flex items-center gap-3 mt-4">
+      <label class="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" [(ngModel)]="c_isActive" class="rounded border-slate-300 text-slate-600" />
+        Activo
+      </label>
+      <button (click)="create()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Guardar</button>
+    </div>
+  </section>
 
   <!-- Lista de usuarios -->
-  <div class="p-4 border rounded-lg">
-    <h3 class="font-medium mb-3">Listado</h3>
-    <div *ngIf="isLoading">Cargando...</div>
-    <div *ngIf="!isLoading && users.length === 0">Sin usuarios</div>
-    <table *ngIf="!isLoading && users.length" class="w-full text-left border-collapse">
-      <thead>
-        <tr class="border-b">
-          <th class="py-2">ID</th>
-          <th>Username</th>
-          <th>Perfil</th>
-          <th>Activo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let u of users" class="border-b">
-          <td class="py-2">{{ u.id }}</td>
-          <td>{{ u.username }}</td>
-          <td>{{ u.userProfileId }}</td>
-          <td>{{ u.isActive ? 'Sí' : 'No' }}</td>
-          <td class="space-x-2">
-            <button (click)="startEdit(u)" class="px-3 py-1 rounded bg-blue-600 text-white">Editar</button>
-            <button (click)="remove(u)" class="px-3 py-1 rounded bg-red-600 text-white">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold">Lista de Usuarios</h2>
+      <button (click)="showUsersList = !showUsersList" class="text-sm text-slate-600">
+        {{ showUsersList ? 'Ocultar' : 'Mostrar' }} lista
+      </button>
+    </div>
 
-  <!-- Editar usuario -->
-  <div *ngIf="editingId != null" class="p-4 border rounded-lg space-y-3">
-    <h3 class="font-medium">Editar usuario</h3>
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-      <input [(ngModel)]="e_username" placeholder="Username" class="border rounded p-2" />
-      <input [(ngModel)]="e_password" placeholder="Nuevo password (opcional)" type="password" class="border rounded p-2" />
-      <input [(ngModel)]="e_userProfileId" placeholder="User Profile ID" type="number" class="border rounded p-2" />
-      <label class="flex items-center space-x-2"><input type="checkbox" [(ngModel)]="e_isActive" /><span>Activo</span></label>
-      <div class="space-x-2">
-        <button (click)="save()" class="px-4 py-2 rounded bg-blue-600 text-white">Guardar</button>
-        <button (click)="cancel()" class="px-4 py-2 rounded bg-gray-300">Cancelar</button>
+    <div *ngIf="showUsersList" class="mt-4">
+      <div class="relative overflow-x-auto">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3">#</th>
+              <th scope="col" class="px-6 py-3">Nombres</th>
+              <th scope="col" class="px-6 py-3">Apellidos</th>
+              <th scope="col" class="px-6 py-3">Email</th>
+              <th scope="col" class="px-6 py-3">Teléfono</th>
+              <th scope="col" class="px-6 py-3">Estado</th>
+              <th scope="col" class="px-6 py-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users; let i = index" class="bg-white border-b border-gray-200">
+              <td class="px-6 py-4">{{ i + 1 }}</td>
+              <td class="px-6 py-4">
+                <a [routerLink]="['/main','users', u.id]" class="text-slate-700 hover:text-emerald-700 underline">{{ u.names }}</a>
+              </td>
+              <td class="px-6 py-4">
+                <a [routerLink]="['/main','users', u.id]" class="text-slate-700 hover:text-emerald-700 underline">{{ u.lastName }}</a>
+              </td>
+              <td class="px-6 py-4">{{ u.email }}</td>
+              <td class="px-6 py-4">{{ u.phoneNumber }}</td>
+              <td class="px-6 py-4">
+                <div (click)="toggleActive(u, $event)" title="Cambiar estado"
+                  class="inline-block rounded-full px-2 py-0.5 text-xs font-medium cursor-pointer hover:opacity-90" [ngClass]="
+                  u.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
+                  {{ u.isActive ? 'Activo' : 'Inactivo' }}
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button (click)="startEdit(u)" title="Editar" class="text-slate-600 hover:text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button (click)="remove(u)" title="Eliminar" class="text-slate-600 hover:text-red-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5-4h4m-7 4v12m6-12v12" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!isLoading && users.length === 0">
+              <td colspan="7" class="px-6 py-6 text-center text-sm text-slate-500">No hay usuarios registrados.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Editar usuario -->
+  <section *ngIf="editingId != null" class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-base font-semibold mb-3">Editar Usuario</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input [(ngModel)]="e_names" placeholder="Nombres" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="e_lastName" placeholder="Apellidos" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="e_email" placeholder="Email" type="email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="e_phoneNumber" placeholder="Teléfono" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="e_address" placeholder="Dirección" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <input [(ngModel)]="e_dob" placeholder="Fecha de nacimiento" type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center mt-4">
+      <input type="file" (change)="onPhotoSelected($event)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <button (click)="uploadPhoto()" class="rounded-lg px-4 py-2 text-sm font-semibold text-white" [class.opacity-50]="!e_photoFile" [disabled]="!e_photoFile" style="background: #4f46e5">Subir foto</button>
+    </div>
+    <div class="flex items-center gap-3 mt-4">
+      <button (click)="save()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #bfc621">Actualizar</button>
+      <button (click)="cancel()" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-900" style="background: #fca5a5">Cancelar</button>
+    </div>
+  </section>
 </div>
