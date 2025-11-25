@@ -56,45 +56,51 @@ export const routes: Routes = [
     component: MainComponent,
     canActivate: [authGuard],
     children: [
-        { path: '', redirectTo: 'menu', pathMatch: 'full' },
-        { path: 'menu', component: MenuComponent },
-        { path: 'home', component: HomeComponent },
-        { path: 'carga-academica', component: CargaAcademicaComponent },
-        { path: 'proximamente', component: ProximamenteComponent },
-        { path: 'notificaciones', component: NotificacionesComponent },
-        { path: 'configuracion', component: ConfiguracionComponent },
-        { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
-        { path: 'users/:id', component: UserDetailComponent, canActivate: [adminGuard] },
-        { path: 'user-management', component: UserManagementComponent, canActivate: [adminGuard] },
-         ],
+      { path: '', redirectTo: 'menu', pathMatch: 'full' },
+      { path: 'menu', component: MenuComponent },
+      { path: 'home', component: HomeComponent },
+      { path: 'carga-academica', component: CargaAcademicaComponent },
+      { path: 'proximamente', component: ProximamenteComponent },
+      { path: 'notificaciones', component: NotificacionesComponent },
+      { path: 'configuracion', component: ConfiguracionComponent },
+      { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
+      {
+        path: 'users/:id',
+        component: UserDetailComponent,
+        canActivate: [adminGuard],
       },
-        // Env-creation con rutas hijas
-        {
-            path: 'env-creation',
-            component: EnvScreenComponent,
-            children: [
-                { path: 'environment', component: AmbienteComponent },
-                { path: 'type-environment', component: TypeEnvComponent },
-                { path: 'buildings', component: BuildingComponent },
-                { path: 'floors', component: FloorComponent },
-                { path: 'states', component: StateComponent },
-                {path: 'resource-state', component: ResourcesStateComponent}
-            ]
-        },
-        
-        // Res-creation con rutas hijas
-        {
-            path: 'res-creation',
-            component: ResourceScreenComponent,
-            children: [
-                { path: 'resources', component: ResourceComponent },
-                { path: 'states', component: ResourcesStateComponent },
-                { path: 'types', component: ResourceTypeComponent },
-                { path: 'categories', component: ResourceCategoryComponent },
-            ]
-        },
-        { path: 'res-assign', component: ResourceEnvComponent },
-       
+      {
+        path: 'user-management',
+        component: UserManagementComponent,
+        canActivate: [adminGuard],
+      },
+
+      // Env-creation con rutas hijas
+      {
+        path: 'env-creation',
+        component: EnvScreenComponent,
+        children: [
+          { path: 'environment', component: AmbienteComponent },
+          { path: 'type-environment', component: TypeEnvComponent },
+          { path: 'buildings', component: BuildingComponent },
+          { path: 'floors', component: FloorComponent },
+          { path: 'states', component: StateComponent },
+          { path: 'resource-state', component: ResourcesStateComponent },
+        ],
+      },
+
+      // Res-creation con rutas hijas
+      {
+        path: 'res-creation',
+        component: ResourceScreenComponent,
+        children: [
+          { path: 'resources', component: ResourceComponent },
+          { path: 'states', component: ResourcesStateComponent },
+          { path: 'types', component: ResourceTypeComponent },
+          { path: 'categories', component: ResourceCategoryComponent },
+        ],
+      },
+      { path: 'res-assign', component: ResourceEnvComponent },
 
       // Res-creation con rutas hijas
       {
